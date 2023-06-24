@@ -66,7 +66,7 @@ void HttpServer::Think()
 	if (status == HTTPSERVER_OFFLINE || !data->update) { return; }
 
 	for (auto& [cache, entry] : data->requests) {
-		CallFunc(entry->func, entry->request, entry->response);
+		//CallFunc(entry->func, entry->request, entry->response);
 		entry->handled = true;
 	}
 

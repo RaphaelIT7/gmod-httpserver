@@ -50,10 +50,10 @@ void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 
 	LUA->PushSpecial(SPECIAL_GLOB);
 		LUA->GetField(-1, "RunString");
-		LUA->PushString(" \
-			hook.Add('Think', 'HTTPServer', function() \
-					httpserver.Think() \
-			end)");
+		LUA->PushString("\
+hook.Add('Think', 'HTTPServer', function()\
+	httpserver.Think()\
+end)");
 		LUA->Call(1, 0);
 	LUA->Pop();
 
