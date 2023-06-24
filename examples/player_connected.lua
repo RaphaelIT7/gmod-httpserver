@@ -1,4 +1,4 @@
-require("httpnet")
+require("httpserver")
 
 httpserver.Get("/", function(request, response)
 	for k, v in ipairs(player.GetAll()) do
@@ -11,4 +11,4 @@ httpserver.Get("/", function(request, response)
 	response.SetContent("You are NOT connected to the Server.", "text/plain")
 end)
 
-httpserver.Start("0.0.0.0", 32039)
+httpserver.Start("0.0.0.0", 32039) -- Change the Port to one you have open & unused.

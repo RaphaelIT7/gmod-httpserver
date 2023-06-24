@@ -63,14 +63,14 @@ LUA_FUNCTION(HasParam)
 LUA_FUNCTION(GetHeader)
 {
 	const char* header = LUA->CheckString(1);
-	LUA->PushString(current_request.get_header_value(header, current_request.get_header_value_count(header)).c_str());
+	LUA->PushString(current_request.get_header_value(header).c_str());
 	return 1;
 }
 
 LUA_FUNCTION(GetParam)
 {
 	const char* param = LUA->CheckString(1);
-	LUA->PushString(current_request.get_param_value(param, current_request.get_param_value_count(param)).c_str());
+	LUA->PushString(current_request.get_param_value(param).c_str());
 	return 1;
 }
 
