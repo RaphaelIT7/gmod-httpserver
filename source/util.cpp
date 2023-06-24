@@ -3,6 +3,7 @@
 #include <string>
 
 GarrysMod::Lua::ILuaBase* GlobalLUA;
+HttpServer* HTTPServer;
 
 // should never be used outside of main thread!!! what happends: memory access violation
 void LuaPrint(const char* Text) {

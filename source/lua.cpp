@@ -7,6 +7,8 @@ static SourceSDK::FactoryLoader luashared_loader("lua_shared");
 LUA_FUNCTION(Think)
 {
 	HTTPServer->Think();
+
+	return 0;
 }
 
 LUA_FUNCTION(Get)
@@ -16,6 +18,8 @@ LUA_FUNCTION(Get)
 	GarrysMod::Lua::CFunc func = LUA->GetCFunction(2);
 
 	HTTPServer->Get(path, func);
+
+	return 0;
 }
 
 LUA_FUNCTION(Start)
@@ -24,11 +28,15 @@ LUA_FUNCTION(Start)
 	unsigned port = LUA->CheckNumber(2);
 
 	HTTPServer->Start(address, port);
+
+	return 0;
 }
 
 LUA_FUNCTION(Stop)
 {
 	HTTPServer->Stop();
+
+	return 0;
 }
 
 void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
