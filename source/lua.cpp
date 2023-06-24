@@ -9,10 +9,35 @@ LUA_FUNCTION(Think)
 	HTTPServer->Think();
 }
 
+LUA_FUNCTION(Get)
+{
+	const char* path = LUA->CheckString(1);
+	LUA->CheckType(1, Type::Function);
+	GarrysMod::Lua::CFunc func = LUA->GetCFunction(2);
+
+	HTTPServer->Get(path, func);
+}
+
+LUA_FUNCTION(Start)
+{
+	const char* address = LUA->CheckString(1);
+	unsigned port = LUA->CheckNumber(2);
+
+	HTTPServer->Start(address, port);
+}
+
+LUA_FUNCTION(Stop)
+{
+	HTTPServer->Stop();
+}
+
 void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 {
 	Start_Table(LUA);
 		Add_Func(LUA, Think, "Think");
+		Add_Func(LUA, Start, "Start");
+		Add_Func(LUA, Stop, "Stop");
+		Add_Func(LUA, Get, "Get");
 	Finish_Table(LUA, "httpserver");
 
 	LUA->PushSpecial(SPECIAL_GLOB);

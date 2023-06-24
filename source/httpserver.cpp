@@ -15,10 +15,19 @@ unsigned Server(void * params)
 
 HttpServer::HttpServer() {}
 
-void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request rquest)
+void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request)
 {
-	//GlobalLUA->PushCFunction(func);
-	//StartTable
+	GlobalLUA->PushCFunction(func);
+	GlobalLUA->CreateTable();
+
+	GlobalLUA->PushString(request.body.c_str());
+	GlobalLUA->SetField(-2, "body");
+
+	GlobalLUA->PushString(request.remote_addr.c_str());
+	GlobalLUA->SetField(-2, "remote_addr");
+
+	GlobalLUA->Call(1, 0);
+	GlobalLUA->Pop(1);
 }
 
 
