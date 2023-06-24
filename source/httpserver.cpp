@@ -23,7 +23,7 @@ LUA_FUNCTION(Set_Content)
 void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
 {
 	GlobalLUA->PushCFunction(func);
-	GlobalLUA->CreateTable();
+	/*GlobalLUA->CreateTable();
 
 	GlobalLUA->PushString(request.body.c_str());
 	GlobalLUA->SetField(-2, "body");
@@ -52,10 +52,10 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Res
 	GlobalLUA->CreateTable();
 
 	GlobalLUA->PushCFunction(Set_Content);
-	GlobalLUA->SetField(-2, "Set_Content");
+	GlobalLUA->SetField(-2, "Set_Content");*/
 
-	current_response = response;
-	GlobalLUA->Call(2, 0);
+	//current_response = response;
+	GlobalLUA->Call(0, 0);
 
 	GlobalLUA->Pop(1);
 }
