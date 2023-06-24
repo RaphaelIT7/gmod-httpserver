@@ -129,7 +129,7 @@ void CallFunc(int func, httplib::Request request, ResponseData_t* response)
 
 	current_response = response;
 	current_request = request;
-	GlobalLUA->Call(2, 0);
+	GlobalLUA->PCall(2, 0, 0);
 }
 
 
@@ -150,14 +150,13 @@ void HttpServer::Think()
 	}
 
 	Mutex->Lock();
-	//data->request_count = data->requests.size();
 	data->update = false;
 	Mutex->Unlock();
 }
 
-void HttpServer::Get(const char* path, int func)
+httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func)
 {
-	server.Get(path, [=](const httplib::Request& req, httplib::Response& res) {
+	return [=](const httplib::Request& req, httplib::Response& res) {
 		RequestData_t* request = new RequestData_t;
 		request->path = path;
 		request->request = req;
@@ -189,44 +188,37 @@ void HttpServer::Get(const char* path, int func)
 				res.set_header(key, value);
 			}
 		}
-	});
+	};
+}
+
+void HttpServer::Get(const char* path, int func)
+{
+	server.Get(path, CreateHandler(path, func));
 }
 
 void HttpServer::Post(const char* path, int func)
 {
-	server.Post(path, [=](const httplib::Request& req, httplib::Response& res) {
-		RequestData_t* request = new RequestData_t;
-		request->path = path;
-		request->request = req;
-		request->func = func;
-		request->response = res;
-		request->response_data = new ResponseData_t;
-		Mutex->Lock();
-		data->request_count = data->request_count + 1;
-		data->requests[data->request_count] = request;
-		data->update = true;
-		Mutex->Unlock();
-		while (!request->handled) {
-			ThreadSleep(1);
-		}
-		Mutex->Lock();
-		request->should_delete = true;
-		Mutex->Unlock();
-		ResponseData_t* rdata = request->response_data;
-		if (rdata->set_content) {
-			res.set_content(rdata->content, rdata->content_type);
-		}
+	server.Post(path, CreateHandler(path, func));
+}
 
-		if (rdata->set_redirect) {
-			res.set_redirect(rdata->redirect, rdata->redirect_code);
-		}
+void HttpServer::Put(const char* path, int func)
+{
+	server.Put(path, CreateHandler(path, func));
+}
 
-		if (rdata->set_header) {
-			for (auto& [key, value] : rdata->headers) {
-				res.set_header(key, value);
-			}
-		}
-	});
+void HttpServer::Patch(const char* path, int func)
+{
+	server.Patch(path, CreateHandler(path, func));
+}
+
+void HttpServer::Delete(const char* path, int func)
+{
+	server.Delete(path, CreateHandler(path, func));
+}
+
+void HttpServer::Options(const char* path, int func)
+{
+	server.Options(path, CreateHandler(path, func));
 }
 
 void HttpServer::Start(const char* address, unsigned port)

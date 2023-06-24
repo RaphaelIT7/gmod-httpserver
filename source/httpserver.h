@@ -43,6 +43,7 @@ class HttpServer
 {
 public:
 	httplib::Server server;
+	unsigned status = HTTPSERVER_OFFLINE;
 
 	HttpServer();
 
@@ -51,7 +52,11 @@ public:
 	void Stop();
 	void Get(const char*, int);
 	void Post(const char*, int);
+	void Put(const char*, int);
+	void Patch(const char*, int);
+	void Delete(const char*, int);
+	void Options(const char*, int);
+	httplib::Server::Handler CreateHandler(const char*, int);
 private:
 	ThreadData_t* data;
-	unsigned status = HTTPSERVER_OFFLINE;
 };
