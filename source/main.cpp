@@ -17,11 +17,16 @@ unsigned HTTPServer(void* params)
 	ThreadData_t* vars = (ThreadData_t*)params;
 
 	svr.Get("/", [=](const httplib::Request&, httplib::Response& res) {
-		res.set_content("Hello World", "text/plain");
 		Msg("Hello World from HTTP");
+		res.set_content("Hello World", "text/plain");
 	});
 
 	svr.listen("0.0.0.0", vars->port); // The port for my testserver.
+
+	svr.Get("/bye", [=](const httplib::Request&, httplib::Response& res) {
+		Msg("Bye from HTTP");
+		res.set_content("Bye", "text/plain");
+	});
 
 	return 0;
 }
