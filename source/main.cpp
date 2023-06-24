@@ -10,6 +10,7 @@
 
 struct ThreadData_t {
 	int port;
+	bool update = false;
 	std::unordered_map<unsigned, httplib::Request> requests;
 };
 ThreadData_t* data;
@@ -30,7 +31,12 @@ unsigned HTTPServer(void* params)
 
 LUA_FUNCTION(Think)
 {
-	Msg(std::to_string(data->requests.size()).c_str());
+	if (data->update) {
+		Msg("Worked");
+	}
+	else {
+		Msg("Nothing");
+	}
 
 	return 0;
 }
@@ -48,6 +54,7 @@ GMOD_MODULE_OPEN()
 	svr.Get("/", [=](const httplib::Request& req, httplib::Response& res) {
 		Mutex->Lock();
 		data->requests[data->requests.size() + 1] = req;
+		data->update = true;
 		Mutex->Unlock();
 		ThreadSleep(1000);
 		res.set_content("Hello World", "text/plain");
