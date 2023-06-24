@@ -17,6 +17,12 @@ struct ThreadData_t {
 	std::unordered_map<unsigned, RequestData_t*> requests;
 };
 
+enum
+{
+	HTTPSERVER_ONLINE,
+	HTTPSERVER_OFFLINE
+};
+
 class HttpServer
 {
 public:
@@ -31,10 +37,4 @@ public:
 private:
 	ThreadData_t* data;
 	unsigned status = HTTPSERVER_OFFLINE;
-};
-
-enum
-{
-	HTTPSERVER_ONLINE,
-	HTTPSERVER_OFFLINE
 };
