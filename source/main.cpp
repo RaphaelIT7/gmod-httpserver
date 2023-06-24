@@ -20,6 +20,8 @@ unsigned HTTPServer(void* params)
 	});
 
 	svr.listen("0.0.0.0", vars->port); // The port for my testserver.
+
+	return 0;
 }
 
 httplib::Server svr;
