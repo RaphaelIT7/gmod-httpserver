@@ -1,13 +1,14 @@
 #pragma once
 
 #include "GarrysMod/Lua/Interface.h"
-#include "GameEventListener.h"
+#include "httpserver.h"
 #include <string>
 #include "lua.h"
 
 using namespace GarrysMod::Lua;
 
 extern GarrysMod::Lua::ILuaBase* GlobalLUA;
+extern HttpServer* HTTPServer;
 
 extern void LuaPrint(const char*);
 extern void LuaPrint(std::string);

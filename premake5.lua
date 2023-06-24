@@ -12,7 +12,7 @@ local gmcommon = assert(_OPTIONS.gmcommon or os.getenv("GARRYSMOD_COMMON"),
     "you didn't provide a path to your garrysmod_common (https://github.com/danielga/garrysmod_common) directory")
 include(gmcommon)
 
-CreateWorkspace({name = "httpnet", abi_compatible = false})
+CreateWorkspace({name = "httpserver", abi_compatible = false})
     -- Serverside module (gmsv prefix)
     -- Can define "source_path", where the source files are located
     -- Can define "manual_files", which allows you to manually add files to the project,
