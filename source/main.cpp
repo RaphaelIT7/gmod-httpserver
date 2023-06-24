@@ -23,12 +23,19 @@ unsigned HTTPServer(void* params)
 
 	svr.listen("0.0.0.0", vars->port); // The port for my testserver.
 
+	return 0;
+}
+
+unsigned Delay(void* params)
+{
+	ThreadData_t* vars = (ThreadData_t*)params;
+
+	ThreadSleep(10);
+
 	svr.Get("/bye", [=](const httplib::Request&, httplib::Response& res) {
 		Msg("Bye from HTTP");
 		res.set_content("Bye", "text/plain");
 	});
-
-	return 0;
 }
 
 GMOD_MODULE_OPEN()
@@ -40,6 +47,7 @@ GMOD_MODULE_OPEN()
 	ThreadData_t* data = new ThreadData_t;
 	data->port = 32039;
 	CreateSimpleThread(HTTPServer, data);
+	CreateSimpleThread(Delay, data);
 
 	return 0;
 }
