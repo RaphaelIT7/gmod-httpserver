@@ -16,26 +16,9 @@ unsigned HTTPServer(void* params)
 {
 	ThreadData_t* vars = (ThreadData_t*)params;
 
-	svr.Get("/", [=](const httplib::Request&, httplib::Response& res) {
-		Msg("Hello World from HTTP");
-		res.set_content("Hello World", "text/plain");
-	});
-
 	svr.listen("0.0.0.0", vars->port); // The port for my testserver.
 
 	return 0;
-}
-
-unsigned Delay(void* params)
-{
-	ThreadData_t* vars = (ThreadData_t*)params;
-
-	ThreadSleep(10);
-
-	svr.Get("/bye", [=](const httplib::Request&, httplib::Response& res) {
-		Msg("Bye from HTTP");
-		res.set_content("Bye", "text/plain");
-	});
 }
 
 GMOD_MODULE_OPEN()
@@ -44,10 +27,16 @@ GMOD_MODULE_OPEN()
 
 	LUA_InitServer(LUA);
 
+	svr.Get("/", [=](const httplib::Request& req, httplib::Response& res) {
+		Msg("Hello World from HTTP");
+		printf("Works");
+		printf(req.remote_addr.c_str());
+		res.set_content("Hello World", "text/plain");
+	});
+
 	ThreadData_t* data = new ThreadData_t;
 	data->port = 32039;
 	CreateSimpleThread(HTTPServer, data);
-	CreateSimpleThread(Delay, data);
 
 	return 0;
 }
