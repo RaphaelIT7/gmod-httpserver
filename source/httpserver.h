@@ -2,8 +2,14 @@
 #include "unordered_map"
 #include "httplib.h"
 
+struct ResponseData_t {
+	const char* content = "";
+	const char* content_type = "text/plain";
+};
+
 struct RequestData_t {
 	int func;
+	ResponseData_t* response_data;
 	httplib::Response response;
 	httplib::Request request;
 	bool handled = false;

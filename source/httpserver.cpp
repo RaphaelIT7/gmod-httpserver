@@ -14,20 +14,18 @@ unsigned Server(void * params)
 
 HttpServer::HttpServer() {}
 
-httplib::Response current_response;
+ResponseData_t* current_response;
 LUA_FUNCTION(Set_Content)
 {
-	const char* str1 = LUA->CheckString(1);
-	const char* str2 = LUA->CheckString(2);
-	Msg(str1);
-	Msg("\n");
-	Msg(str2);
-	current_response.set_content(std::string(str1), std::string(str2));
+	Mutex->Lock();
+	current_response->content = LUA->CheckString(1);
+	current_response->content_type = LUA->CheckString(2);
+	Mutex->Unlock();
 
 	return 0;
 }
 
-void CallFunc(int func, httplib::Request request, httplib::Response response)
+void CallFunc(int func, httplib::Request request, ResponseData_t* response)
 {
 	GlobalLUA->ReferencePush(func);
 
@@ -79,7 +77,7 @@ void HttpServer::Think()
 			return;
 		}
 
-		CallFunc(entry->func, entry->request, entry->response);
+		CallFunc(entry->func, entry->request, entry->response_data);
 		entry->handled = true;
 	}
 
@@ -97,6 +95,7 @@ void HttpServer::Get(const char* path, int func)
 		request->request = req;
 		request->func = func;
 		request->response = res;
+		request->response_data = new ResponseData_t;
 		Mutex->Lock();
 		data->request_count = data->request_count + 1;
 		data->requests[data->request_count] = request;
@@ -108,6 +107,7 @@ void HttpServer::Get(const char* path, int func)
 		Mutex->Lock();
 		request->should_delete = true;
 		Mutex->Unlock();
+		res.set_content(request->response_data->content, request->response_data->content);
 	});
 }
 
