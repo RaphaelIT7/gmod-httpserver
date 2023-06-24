@@ -50,6 +50,7 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Res
 
 	GlobalLUA->PushNumber(request.content_length_);
 	GlobalLUA->SetField(-2, "content_length_");
+	GlobalLUA->SetField(-2, "");
 
 	GlobalLUA->CreateTable();
 
