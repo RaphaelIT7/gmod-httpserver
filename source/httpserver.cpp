@@ -51,7 +51,6 @@ void CallFunc(int func, httplib::Request request, httplib::Response response)
 
 	GlobalLUA->PushNumber(request.content_length_);
 	GlobalLUA->SetField(-2, "content_length_");
-	GlobalLUA->SetField(-2, "");
 
 	GlobalLUA->CreateTable();
 
