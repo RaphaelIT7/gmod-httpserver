@@ -44,6 +44,7 @@ httpserver.Get("/httpnet2", function(request, response)
 		local tbl = ply_data[request.remote_addr]
 		if tbl then
 			response.SetContent(tbl[request.GetParam("httpnet")] or "", "text/plain")
+			return
 		end
 	end
 
