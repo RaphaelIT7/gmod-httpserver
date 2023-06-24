@@ -2,7 +2,6 @@
 #include <GarrysMod/FactoryLoader.hpp>
 #include "util.h"
 #include "lua.h"
-#define CPPHTTPLIB_OPENSSL_SUPPORT
 #include "cpp-httplib/httplib.h"
 
 GMOD_MODULE_OPEN()
