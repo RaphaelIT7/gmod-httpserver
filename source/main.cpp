@@ -16,7 +16,7 @@ GMOD_MODULE_OPEN()
 		res.set_content("Hello World!", "text/plain");
 		});
 
-	svr.listen("0.0.0.0", 8080);
+	svr.listen("0.0.0.0", 32039); // The port for my testserver.
 
 	return 0;
 }
