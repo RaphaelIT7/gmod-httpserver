@@ -50,7 +50,7 @@ void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 	LUA->Pop();
 
 
-	LuaPrint("[HTTPNet] Successfully Loaded.");
+	LuaPrint("[HTTPServer] Successfully Loaded.");
 }
 
 GarrysMod::Lua::ILuaBase* GetRealm(int realm)
