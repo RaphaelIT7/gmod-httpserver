@@ -4,6 +4,7 @@
 
 struct RequestData_t {
 	GarrysMod::Lua::CFunc func;
+	httplib::Response response;
 	httplib::Request request;
 	bool handled = false;
 	const char* path;

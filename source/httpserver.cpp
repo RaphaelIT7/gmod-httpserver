@@ -14,7 +14,13 @@ unsigned Server(void * params)
 
 HttpServer::HttpServer() {}
 
-void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request)
+httplib::Response current_response;
+LUA_FUNCTION(Set_Content)
+{
+	current_response.set_content(LUA->CheckString(1), LUA->CheckString(2));
+}
+
+void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
 {
 	GlobalLUA->PushCFunction(func);
 	GlobalLUA->CreateTable();
@@ -43,7 +49,14 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request)
 	GlobalLUA->PushNumber(request.content_length_);
 	GlobalLUA->SetField(-2, "content_length_");
 
-	GlobalLUA->Call(1, 0);
+	GlobalLUA->CreateTable();
+
+	GlobalLUA->PushCFunction(Set_Content);
+	GlobalLUA->SetField(-2, "Set_Content");
+
+	current_response = response;
+	GlobalLUA->Call(2, 0);
+
 	GlobalLUA->Pop(1);
 }
 
@@ -53,7 +66,7 @@ void HttpServer::Think()
 	if (status == HTTPSERVER_OFFLINE || !data->update) { return; }
 
 	for (auto& [cache, entry] : data->requests) {
-		CallFunc(entry->func, entry->request);
+		CallFunc(entry->func, entry->request, entry->response);
 		entry->handled = true;
 	}
 
@@ -70,6 +83,7 @@ void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
 		request->path = path;
 		request->request = req;
 		request->func = func;
+		request->response = res;
 		Mutex->Lock();
 		data->request_count = data->request_count + 1;
 		data->requests[data->request_count] = request;
@@ -78,6 +92,7 @@ void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
 		while (!request->handled) {
 			ThreadSleep(0);
 		}
+		res.set_content("Worked", "text/plain");
 	});
 }
 
