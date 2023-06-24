@@ -90,7 +90,7 @@ void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
 		data->update = true;
 		Mutex->Unlock();
 		while (!request->handled) {
-			ThreadSleep(0);
+			ThreadSleep(20);
 		}
 		res.set_content("Worked", "text/plain");
 	});
@@ -106,6 +106,7 @@ void HttpServer::Start(const char* address, unsigned port)
 	data->address = address;
 	data->port = port;
 	CreateSimpleThread(Server, data);
+	status = HTTPSERVER_ONLINE;
 }
 
 void HttpServer::Stop()
