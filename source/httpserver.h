@@ -3,6 +3,7 @@
 #include "httplib.h"
 
 struct ResponseData_t {
+	bool set_content = false;
 	const char* content = "";
 	const char* content_type = "text/plain";
 };

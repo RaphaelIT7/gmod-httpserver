@@ -18,6 +18,7 @@ ResponseData_t* current_response;
 LUA_FUNCTION(Set_Content)
 {
 	Mutex->Lock();
+	current_response->set_content = true;
 	current_response->content = LUA->CheckString(1);
 	current_response->content_type = LUA->CheckString(2);
 	Mutex->Unlock();
@@ -107,7 +108,9 @@ void HttpServer::Get(const char* path, int func)
 		Mutex->Lock();
 		request->should_delete = true;
 		Mutex->Unlock();
-		res.set_content(request->response_data->content, request->response_data->content);
+		if (request->response_data) {
+			res.set_content(request->response_data->content, request->response_data->content);
+		}
 	});
 }
 
