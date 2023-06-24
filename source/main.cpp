@@ -21,6 +21,7 @@ GMOD_MODULE_OPEN()
 	});
 
 	svr.listen("0.0.0.0", 32039); // The port for my testserver.
+	Msg("Continued");
 
 	return 0;
 }
