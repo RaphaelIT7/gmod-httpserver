@@ -230,7 +230,7 @@ void HttpServer::Start(const char* address, unsigned port)
 	data = new ThreadData_t;
 	data->address = address;
 	data->port = port;
-	CreateSimpleThread(Server, data);
+	CreateSimpleThread((ThreadFunc_t)Server, data);
 	status = HTTPSERVER_ONLINE;
 }
 
