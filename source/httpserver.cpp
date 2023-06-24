@@ -17,7 +17,7 @@ HttpServer::HttpServer() {}
 httplib::Response current_response;
 LUA_FUNCTION(Set_Content)
 {
-	current_response.set_content(LUA->CheckString(1), LUA->CheckString(2));
+	current_response.set_content(std::string(LUA->CheckString(1)), std::string(LUA->CheckString(2)));
 
 	return 0;
 }
@@ -66,13 +66,20 @@ void HttpServer::Think()
 {
 	if (status == HTTPSERVER_OFFLINE || !data->update) { return; }
 
-	for (auto& [cache, entry] : data->requests) {
+	for (auto& [id, entry] : data->requests) {
+		if (entry->handled) { return; }
+		if (entry->should_delete) {
+			data->requests.erase(id);
+			delete entry;
+			return;
+		}
+
 		CallFunc(entry->func, entry->request, entry->response);
 		entry->handled = true;
 	}
 
 	Mutex->Lock();
-	data->request_count = 0;
+	data->request_count = data->requests.size();
 	data->update = false;
 	Mutex->Unlock();
 }
@@ -91,11 +98,18 @@ void HttpServer::Get(const char* path, int func)
 		data->update = true;
 		Mutex->Unlock();
 		while (!request->handled) {
-			ThreadSleep(20);
+			ThreadSleep(1);
 		}
-		delete request;
+		Mutex->Lock();
+		request->should_delete = true;
+		Mutex->Unlock();
 	});
 }
+
+/*void HttpServer::Reset()
+{
+
+}*/
 
 void HttpServer::Start(const char* address, unsigned port)
 {

@@ -8,6 +8,7 @@ struct RequestData_t {
 	httplib::Request request;
 	bool handled = false;
 	const char* path;
+	bool should_delete = false;
 };
 
 struct ThreadData_t {
