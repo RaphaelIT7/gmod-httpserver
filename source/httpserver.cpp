@@ -22,7 +22,6 @@ LUA_FUNCTION(Set_Content)
 
 void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
 {
-	GlobalLUA->PushSpecial(SPECIAL_GLOB);
 	GlobalLUA->CreateTable();
 
 	GlobalLUA->PushString(request.body.c_str());
