@@ -25,6 +25,24 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request)
 	GlobalLUA->PushString(request.remote_addr.c_str());
 	GlobalLUA->SetField(-2, "remote_addr");
 
+	GlobalLUA->PushNumber(request.remote_port);
+	GlobalLUA->SetField(-2, "remote_port");
+
+	GlobalLUA->PushString(request.local_addr.c_str());
+	GlobalLUA->SetField(-2, "local_addr");
+
+	GlobalLUA->PushNumber(request.local_port);
+	GlobalLUA->SetField(-2, "local_port");
+
+	GlobalLUA->PushString(request.method.c_str());
+	GlobalLUA->SetField(-2, "method");
+
+	GlobalLUA->PushNumber(request.authorization_count_);
+	GlobalLUA->SetField(-2, "authorization_count_");
+
+	GlobalLUA->PushNumber(request.content_length_);
+	GlobalLUA->SetField(-2, "content_length_");
+
 	GlobalLUA->Call(1, 0);
 	GlobalLUA->Pop(1);
 }
@@ -35,6 +53,7 @@ void HttpServer::Think()
 	if (status == HTTPSERVER_OFFLINE || !data->update) { return; }
 
 	for (auto& [cache, entry] : data->requests) {
+		CallFunc(entry->func, entry->request);
 		entry->handled = true;
 	}
 
@@ -57,7 +76,7 @@ void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
 		data->update = true;
 		Mutex->Unlock();
 		while (!request->handled) {
-			ThreadSleep(50);
+			ThreadSleep(0);
 		}
 	});
 }
