@@ -32,13 +32,13 @@ unsigned HTTPServer(void* params)
 LUA_FUNCTION(Think)
 {
 	if (data->update) {
-		Msg("Worked");
+		LUA->PushString("Update");
 	}
 	else {
-		Msg("Nothing");
+		LUA->PushString("Nothing");
 	}
 
-	return 0;
+	return 1;
 }
 
 CThreadFastMutex* Mutex = new CThreadFastMutex();
