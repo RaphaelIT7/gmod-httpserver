@@ -23,7 +23,6 @@ LUA_FUNCTION(Set_Content)
 void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
 {
 	GlobalLUA->PushSpecial(SPECIAL_GLOB);
-	GlobalLUA->PushCFunction(func);
 	GlobalLUA->CreateTable();
 
 	GlobalLUA->PushString(request.body.c_str());
@@ -55,10 +54,12 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Res
 	GlobalLUA->PushCFunction(Set_Content);
 	GlobalLUA->SetField(-2, "Set_Content");
 
+	GlobalLUA->PushCFunction(func);
 	current_response = response;
+
 	GlobalLUA->Call(2, 0);
 
-	GlobalLUA->Pop(1);
+	GlobalLUA->Pop(2);
 }
 
 
@@ -93,7 +94,7 @@ void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
 		while (!request->handled) {
 			ThreadSleep(20);
 		}
-		res.set_content("Worked", "text/plain");
+		delete request;
 	});
 }
 
