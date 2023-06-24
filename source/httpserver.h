@@ -6,6 +6,13 @@ struct ResponseData_t {
 	bool set_content = false;
 	const char* content = "";
 	const char* content_type = "text/plain";
+
+	bool set_redirect = false;
+	const char* redirect = "";
+	int redirect_code = 302;
+
+	bool set_header = false;
+	std::unordered_map<const char*, const char*> headers;
 };
 
 struct RequestData_t {
@@ -43,6 +50,7 @@ public:
 	void Start(const char*, unsigned);
 	void Stop();
 	void Get(const char*, int);
+	void Post(const char*, int);
 private:
 	ThreadData_t* data;
 	unsigned status = HTTPSERVER_OFFLINE;

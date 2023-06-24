@@ -23,6 +23,18 @@ LUA_FUNCTION(Get)
 	return 0;
 }
 
+LUA_FUNCTION(Post)
+{
+	const char* path = LUA->CheckString(1);
+	LUA->CheckType(2, Type::Function);
+	LUA->Push(2);
+	int func = LUA->ReferenceCreate();
+
+	HTTPServer->Get(path, func);
+
+	return 0;
+}
+
 LUA_FUNCTION(Start)
 {
 	const char* address = LUA->CheckString(1);
@@ -47,6 +59,7 @@ void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 		Add_Func(LUA, Start, "Start");
 		Add_Func(LUA, Stop, "Stop");
 		Add_Func(LUA, Get, "Get");
+		Add_Func(LUA, Get, "Post");
 	Finish_Table(LUA, "httpserver");
 
 	LUA->PushSpecial(SPECIAL_GLOB);

@@ -15,7 +15,7 @@ unsigned Server(void * params)
 HttpServer::HttpServer() {}
 
 ResponseData_t* current_response;
-LUA_FUNCTION(Set_Content)
+LUA_FUNCTION(SetContent)
 {
 	Mutex->Lock();
 	current_response->set_content = true;
@@ -24,6 +24,54 @@ LUA_FUNCTION(Set_Content)
 	Mutex->Unlock();
 
 	return 0;
+}
+
+LUA_FUNCTION(SetRedirect)
+{
+	Mutex->Lock();
+	current_response->set_redirect = true;
+	current_response->redirect = LUA->CheckString(1);
+	current_response->redirect_code = LUA->CheckNumber(2);
+	Mutex->Unlock();
+
+	return 0;
+}
+
+LUA_FUNCTION(SetHeader)
+{
+	Mutex->Lock();
+	current_response->set_header = true;
+	current_response->headers[LUA->CheckString(1)] = LUA->CheckString(2);
+	Mutex->Unlock();
+
+	return 0;
+}
+
+httplib::Request current_request;
+LUA_FUNCTION(HasHeader)
+{
+	LUA->PushBool(current_request.has_header(LUA->CheckString(1)));
+	return 1;
+}
+
+LUA_FUNCTION(HasParam)
+{
+	LUA->PushBool(current_request.has_param(LUA->CheckString(1)));
+	return 1;
+}
+
+LUA_FUNCTION(GetHeader)
+{
+	const char* header = LUA->CheckString(1);
+	LUA->PushString(current_request.get_header_value(header, current_request.get_header_value_count(header)).c_str());
+	return 1;
+}
+
+LUA_FUNCTION(GetParam)
+{
+	const char* param = LUA->CheckString(1);
+	LUA->PushString(current_request.get_param_value(param, current_request.get_param_value_count(param)).c_str());
+	return 1;
 }
 
 void CallFunc(int func, httplib::Request request, ResponseData_t* response)
@@ -51,17 +99,36 @@ void CallFunc(int func, httplib::Request request, ResponseData_t* response)
 	GlobalLUA->SetField(-2, "method");
 
 	GlobalLUA->PushNumber(request.authorization_count_);
-	GlobalLUA->SetField(-2, "authorization_count_");
+	GlobalLUA->SetField(-2, "authorization_count");
 
 	GlobalLUA->PushNumber(request.content_length_);
-	GlobalLUA->SetField(-2, "content_length_");
+	GlobalLUA->SetField(-2, "content_length");
+
+	GlobalLUA->PushCFunction(HasHeader);
+	GlobalLUA->SetField(-2, "HasHeader");
+
+	GlobalLUA->PushCFunction(HasParam);
+	GlobalLUA->SetField(-2, "HasParam");
+
+	GlobalLUA->PushCFunction(GetHeader);
+	GlobalLUA->SetField(-2, "GetHeader");
+
+	GlobalLUA->PushCFunction(GetParam);
+	GlobalLUA->SetField(-2, "GetParam");
 
 	GlobalLUA->CreateTable();
 
-	GlobalLUA->PushCFunction(Set_Content);
-	GlobalLUA->SetField(-2, "Set_Content");
+	GlobalLUA->PushCFunction(SetContent);
+	GlobalLUA->SetField(-2, "SetContent");
+
+	GlobalLUA->PushCFunction(SetRedirect);
+	GlobalLUA->SetField(-2, "SetRedirect");
+
+	GlobalLUA->PushCFunction(SetHeader);
+	GlobalLUA->SetField(-2, "SetHeader");
 
 	current_response = response;
+	current_request = request;
 	GlobalLUA->Call(2, 0);
 }
 
@@ -108,16 +175,59 @@ void HttpServer::Get(const char* path, int func)
 		Mutex->Lock();
 		request->should_delete = true;
 		Mutex->Unlock();
-		if (request->response_data) {
-			res.set_content(request->response_data->content, request->response_data->content);
+		ResponseData_t* rdata = request->response_data;
+		if (rdata->set_content) {
+			res.set_content(rdata->content, rdata->content_type);
+		}
+
+		if (rdata->set_redirect) {
+			res.set_redirect(rdata->redirect, rdata->redirect_code);
+		}
+
+		if (rdata->set_header) {
+			for (auto& [key, value] : rdata->headers) {
+				res.set_header(key, value);
+			}
 		}
 	});
 }
 
-/*void HttpServer::Reset()
+void HttpServer::Post(const char* path, int func)
 {
+	server.Post(path, [=](const httplib::Request& req, httplib::Response& res) {
+		RequestData_t* request = new RequestData_t;
+		request->path = path;
+		request->request = req;
+		request->func = func;
+		request->response = res;
+		request->response_data = new ResponseData_t;
+		Mutex->Lock();
+		data->request_count = data->request_count + 1;
+		data->requests[data->request_count] = request;
+		data->update = true;
+		Mutex->Unlock();
+		while (!request->handled) {
+			ThreadSleep(1);
+		}
+		Mutex->Lock();
+		request->should_delete = true;
+		Mutex->Unlock();
+		ResponseData_t* rdata = request->response_data;
+		if (rdata->set_content) {
+			res.set_content(rdata->content, rdata->content_type);
+		}
 
-}*/
+		if (rdata->set_redirect) {
+			res.set_redirect(rdata->redirect, rdata->redirect_code);
+		}
+
+		if (rdata->set_header) {
+			for (auto& [key, value] : rdata->headers) {
+				res.set_header(key, value);
+			}
+		}
+	});
+}
 
 void HttpServer::Start(const char* address, unsigned port)
 {
