@@ -3,7 +3,7 @@
 #include "httplib.h"
 
 struct RequestData_t {
-	GarrysMod::Lua::CFunc func;
+	int func;
 	httplib::Response response;
 	httplib::Request request;
 	bool handled = false;
@@ -34,7 +34,7 @@ public:
 	void Think();
 	void Start(const char*, unsigned);
 	void Stop();
-	void Get(const char*, GarrysMod::Lua::CFunc);
+	void Get(const char*, int);
 private:
 	ThreadData_t* data;
 	unsigned status = HTTPSERVER_OFFLINE;

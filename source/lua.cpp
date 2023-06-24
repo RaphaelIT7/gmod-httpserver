@@ -15,7 +15,8 @@ LUA_FUNCTION(Get)
 {
 	const char* path = LUA->CheckString(1);
 	LUA->CheckType(2, Type::Function);
-	GarrysMod::Lua::CFunc func = LUA->GetCFunction(2);
+	LUA->Push(2);
+	int func = LUA->ReferenceCreate();
 
 	HTTPServer->Get(path, func);
 

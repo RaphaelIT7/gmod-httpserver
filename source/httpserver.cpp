@@ -22,12 +22,12 @@ LUA_FUNCTION(Set_Content)
 	return 0;
 }
 
-void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
+void CallFunc(int func, httplib::Request request, httplib::Response response)
 {
-	GlobalLUA->PushCFunction(func);
 
 	current_response = response;
 
+	GlobalLUA->ReferencePush(func);
 	GlobalLUA->Call(0, 0);
 }
 
@@ -47,7 +47,7 @@ void HttpServer::Think()
 	Mutex->Unlock();
 }
 
-void HttpServer::Get(const char* path, GarrysMod::Lua::CFunc func)
+void HttpServer::Get(const char* path, int func)
 {
 	server.Get(path, [=](const httplib::Request& req, httplib::Response& res) {
 		RequestData_t* request = new RequestData_t;
