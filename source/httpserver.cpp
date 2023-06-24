@@ -55,7 +55,7 @@ void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Res
 	GlobalLUA->SetField(-2, "Set_Content");
 
 	current_response = response;
-	GlobalLUA->Call(2, 0);
+	//GlobalLUA->Call(2, 0);
 
 	GlobalLUA->Pop(1);
 }
@@ -66,7 +66,7 @@ void HttpServer::Think()
 	if (status == HTTPSERVER_OFFLINE || !data->update) { return; }
 
 	for (auto& [cache, entry] : data->requests) {
-		//CallFunc(entry->func, entry->request, entry->response);
+		CallFunc(entry->func, entry->request, entry->response);
 		entry->handled = true;
 	}
 
