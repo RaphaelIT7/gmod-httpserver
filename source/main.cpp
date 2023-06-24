@@ -30,10 +30,7 @@ unsigned HTTPServer(void* params)
 
 LUA_FUNCTION(Think)
 {
-	if (data->requests.empty()) { return 0; }
-
-	Msg("Request found!");
-	data->requests.clear();
+	Msg(std::to_string(data->requests.size()).c_str());
 
 	return 0;
 }
