@@ -1,5 +1,6 @@
 This Project aims to add a HTTPServer to Gmod.
 
+This project uses the [cpp-httplib](https://github.com/yhirose/cpp-httplib) as the HTTPServer.
 # Functions
 ## Basic Functions
 #### httpserver.Start(String IP, Number Port)
