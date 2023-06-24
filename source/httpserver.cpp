@@ -79,7 +79,7 @@ void HttpServer::Think()
 	}
 
 	Mutex->Lock();
-	data->request_count = data->requests.size();
+	//data->request_count = data->requests.size();
 	data->update = false;
 	Mutex->Unlock();
 }
