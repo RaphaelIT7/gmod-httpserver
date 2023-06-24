@@ -4,6 +4,7 @@
 
 GarrysMod::Lua::ILuaBase* GlobalLUA;
 HttpServer* HTTPServer;
+IServer* Gmod_Server;
 
 // should never be used outside of main thread!!! what happends: memory access violation
 void LuaPrint(const char* Text) {

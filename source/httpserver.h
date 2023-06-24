@@ -42,7 +42,8 @@ enum
 class HttpServer
 {
 public:
-	httplib::Server server;
+	bool ipwhitelist = false;
+	httplib::Server httpserver;
 	unsigned status = HTTPSERVER_OFFLINE;
 
 	HttpServer();
@@ -50,13 +51,13 @@ public:
 	void Think();
 	void Start(const char*, unsigned);
 	void Stop();
-	void Get(const char*, int);
-	void Post(const char*, int);
-	void Put(const char*, int);
-	void Patch(const char*, int);
-	void Delete(const char*, int);
-	void Options(const char*, int);
-	httplib::Server::Handler CreateHandler(const char*, int);
+	void Get(const char*, int, bool);
+	void Put(const char*, int, bool);
+	void Post(const char*, int, bool);
+	void Patch(const char*, int, bool);
+	void Delete(const char*, int, bool);
+	void Options(const char*, int, bool);
+	httplib::Server::Handler CreateHandler(const char*, int, bool);
 private:
 	ThreadData_t* data;
 };

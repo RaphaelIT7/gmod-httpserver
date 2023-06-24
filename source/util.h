@@ -2,6 +2,7 @@
 
 #include "GarrysMod/Lua/Interface.h"
 #include "httpserver.h"
+#include "iserver.h"
 #include <string>
 #include "lua.h"
 
@@ -9,6 +10,7 @@ using namespace GarrysMod::Lua;
 
 extern GarrysMod::Lua::ILuaBase* GlobalLUA;
 extern HttpServer* HTTPServer;
+extern IServer* Gmod_Server;
 
 extern void LuaPrint(const char*);
 extern void LuaPrint(std::string);

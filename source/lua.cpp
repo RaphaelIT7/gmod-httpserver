@@ -14,11 +14,12 @@ LUA_FUNCTION(Think)
 LUA_FUNCTION(Get)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Get(path, func);
+	HTTPServer->Get(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -26,11 +27,12 @@ LUA_FUNCTION(Get)
 LUA_FUNCTION(Post)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Post(path, func);
+	HTTPServer->Post(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -38,11 +40,12 @@ LUA_FUNCTION(Post)
 LUA_FUNCTION(Put)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Put(path, func);
+	HTTPServer->Put(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -50,11 +53,12 @@ LUA_FUNCTION(Put)
 LUA_FUNCTION(Patch)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Patch(path, func);
+	HTTPServer->Patch(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -62,11 +66,12 @@ LUA_FUNCTION(Patch)
 LUA_FUNCTION(Delete)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Delete(path, func);
+	HTTPServer->Delete(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -74,11 +79,12 @@ LUA_FUNCTION(Delete)
 LUA_FUNCTION(Options)
 {
 	const char* path = LUA->CheckString(1);
+	bool ip_whitelist = LUA->GetBool(3);
 	LUA->CheckType(2, Type::Function);
 	LUA->Push(2);
 	int func = LUA->ReferenceCreate();
 
-	HTTPServer->Options(path, func);
+	HTTPServer->Options(path, func, ip_whitelist);
 
 	return 0;
 }
@@ -93,49 +99,56 @@ LUA_FUNCTION(IsRunning)
 LUA_FUNCTION(SetTCPnodelay)
 {
 	LUA->CheckType(1, Type::BOOL);
-	HTTPServer->server.set_tcp_nodelay(LUA->GetBool(1));
+	HTTPServer->httpserver.set_tcp_nodelay(LUA->GetBool(1));
 	return 0;
 }
 
 LUA_FUNCTION(SetReadTimeout)
 {
-	HTTPServer->server.set_read_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
+	HTTPServer->httpserver.set_read_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
 	return 0;
 }
 
 LUA_FUNCTION(SetWriteTimeout)
 {
-	HTTPServer->server.set_write_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
+	HTTPServer->httpserver.set_write_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
 	return 0;
 }
 
 LUA_FUNCTION(SetPayloadMaxLength)
 {
-	HTTPServer->server.set_payload_max_length(LUA->CheckNumber(1));
+	HTTPServer->httpserver.set_payload_max_length(LUA->CheckNumber(1));
 	return 0;
 }
 
 LUA_FUNCTION(SetKeepAliveTimeout)
 {
-	HTTPServer->server.set_keep_alive_timeout(LUA->CheckNumber(1));
+	HTTPServer->httpserver.set_keep_alive_timeout(LUA->CheckNumber(1));
 	return 0;
 }
 
 LUA_FUNCTION(SetKeepAliveMaxCount)
 {
-	HTTPServer->server.set_keep_alive_max_count(LUA->CheckNumber(1));
+	HTTPServer->httpserver.set_keep_alive_max_count(LUA->CheckNumber(1));
 	return 0;
 }
 
 LUA_FUNCTION(SetMountPoint)
 {
-	HTTPServer->server.set_mount_point(LUA->CheckString(1), LUA->CheckString(2));
+	HTTPServer->httpserver.set_mount_point(LUA->CheckString(1), LUA->CheckString(2));
 	return 0;
 }
 
 LUA_FUNCTION(RemoveMountPoint)
 {
-	HTTPServer->server.remove_mount_point(LUA->CheckString(1));
+	HTTPServer->httpserver.remove_mount_point(LUA->CheckString(1));
+	return 0;
+}
+
+LUA_FUNCTION(UseWhitelist)
+{
+	LUA->CheckType(1, Type::BOOL);
+	HTTPServer->ipwhitelist = LUA->GetBool(1);
 	return 0;
 }
 
