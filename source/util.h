@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GarrysMod/Lua/Interface.h"
-#include "GameEventListener.h"
 #include "httpserver.h"
 #include <string>
 #include "lua.h"
