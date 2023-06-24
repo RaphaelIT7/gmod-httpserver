@@ -46,3 +46,37 @@ This mounts the given folder to the given path.
 (You can call this multiple times for the same path to mount multiple folders to it.)
 #### httpserver.RemoveMountPoint(string path)
 This removes all mounts for the given path.
+
+## Request
+#### Request.body
+The body of the HTTP Request.
+#### Request.remote_addr
+the IP Address of the Person who sent the HTTP Request
+#### Request.remote_port
+The Port the HTTP request was received from.
+#### Request.local_addr
+#### Request.local_port
+#### Request.method
+The HTTP Method that was used like GET or PUT.
+#### Request.authorization_count
+#### Request.content_length
+The length of the HTTP Request content.
+#### Request.HasHeader(key)
+returns true if the client has the given key in the header.
+#### Request.HasParam(key)
+returns true if the client has the given key in the parameters.
+#### Request.GetHeader(key)
+returns the value of the given key from the header.
+#### Request.GetParam(key)
+returns the value of the given key from the parameters.
+
+## Response
+#### Response.SetContent(content, content-type)
+Sets the content like this:
+```lua
+Response.SetContent("Hello World", "text/plain")
+```
+#### Response.SetRedirect(url, code)
+Redirects one to the given URL and returns the given code.
+#### Response.SetHeader(key, value)
+Sets the given value for the given key in the header.
