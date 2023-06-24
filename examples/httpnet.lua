@@ -11,7 +11,7 @@
 if CLIENT then -- Put this code into a seperate file only the client executes.
 	httpnet = {}
 	httpnet.Port = 32039
-	httpnet.Url = "http://" .. string.Split(game.GetIPAddress(), ":")[1] .. ":" .. httpnet.Port .. "/httpnet2"
+	httpnet.Url = "http://" .. string.Split(game.GetIPAddress(), ":")[1] .. ":" .. httpnet.Port .. "/httpnet"
 	function httpnet.Download(key, callback)
 		if !key or !callback then return end
 		HTTP({
@@ -39,7 +39,7 @@ end
 require("httpserver")
 
 local ply_data = {}
-httpserver.Get("/httpnet2", function(request, response)
+httpserver.Get("/httpnet", function(request, response)
 	if request.HasParam("httpnet") then
 		local tbl = ply_data[request.remote_addr]
 		if tbl then
