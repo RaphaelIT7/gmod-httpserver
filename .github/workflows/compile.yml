@@ -91,7 +91,7 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_windows.dll
+        name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_win32.dll
         path: projects/windows/vs2019/x86/ReleaseWithSymbols/gm${{env.REALM}}_${{env.PROJECT_NAME}}_win32.dll
 
     - uses: actions/upload-artifact@v2
