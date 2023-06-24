@@ -10,6 +10,8 @@
 struct ThreadData_t {
 	int port;
 };
+
+httplib::Server svr;
 unsigned HTTPServer(void* params)
 {
 	ThreadData_t* vars = (ThreadData_t*)params;
@@ -24,7 +26,6 @@ unsigned HTTPServer(void* params)
 	return 0;
 }
 
-httplib::Server svr;
 GMOD_MODULE_OPEN()
 {
 	GlobalLUA = LUA;
