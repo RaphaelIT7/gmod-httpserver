@@ -16,9 +16,8 @@ GMOD_MODULE_OPEN()
 	IServer* server = InterfacePointers::Server();
 
 	svr.Get("/", [=](const httplib::Request&, httplib::Response& res) {
-		res.set_content("Hello World! \n\
-			Servername: " + std::string(server->GetName()) + "\
-			Mapname: " + std::string(server->GetMapName()), "text/plain");
+		res.set_content("Hello World", "text/plain");
+		LuaPrint("Will this crash the server");
 	});
 
 	svr.listen("0.0.0.0", 32039); // The port for my testserver.
@@ -28,6 +27,7 @@ GMOD_MODULE_OPEN()
 
 GMOD_MODULE_CLOSE()
 {
+	LuaPrint("HTTPServer shutdown");
 	svr.stop();
 
 	return 0;
