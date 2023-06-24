@@ -18,6 +18,8 @@ httplib::Response current_response;
 LUA_FUNCTION(Set_Content)
 {
 	current_response.set_content(LUA->CheckString(1), LUA->CheckString(2));
+
+	return 0;
 }
 
 void CallFunc(GarrysMod::Lua::CFunc func, httplib::Request request, httplib::Response response)
