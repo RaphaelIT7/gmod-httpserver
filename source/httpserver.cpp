@@ -158,10 +158,13 @@ void HttpServer::Think()
 
 			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
 			{
-				IClient* client = Gmod_Server->GetClient(i - 1);
+				edict_t* ent = Engine->PEntityOfEntIndex(i);
+				if (ent->m_EdictIndex != i) { Msg("ERROR INCOMMINT\n");}
 				Msg("Client ID: ");
 				Msg(std::to_string(i).c_str());
 				Msg("\n");
+
+				IClient* client = Gmod_Server->GetClient(i - 1);
 				if (client != nullptr && client->IsConnected()) {
 					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
 					std::string address = addr.ToString();

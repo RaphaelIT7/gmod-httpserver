@@ -5,12 +5,14 @@
 #include <string>
 #include "lua.h"
 #include "iserver.h"
+#include "eiface.h"
 
 using namespace GarrysMod::Lua;
 
 extern GarrysMod::Lua::ILuaBase* GlobalLUA;
 extern HttpServer* HTTPServer;
-extern IServer *Gmod_Server;
+extern IServer* Gmod_Server;
+extern IVEngineServer* Engine;
 
 extern void LuaPrint(const char*);
 extern void LuaPrint(std::string);

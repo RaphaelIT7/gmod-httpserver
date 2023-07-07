@@ -13,6 +13,10 @@ GMOD_MODULE_OPEN()
 	if (Gmod_Server == nullptr)
 		ThrowError("Failed to get IServer");
 
+	Engine = InterfacePointers::VEngineServer();
+	if (Engine == nullptr)
+		ThrowError("Failed to get IVEngineServer");
+
 	LUA_InitServer(LUA);
 
 	return 0;
