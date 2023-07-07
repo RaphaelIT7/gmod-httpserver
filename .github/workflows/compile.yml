@@ -3,7 +3,7 @@ name: Build
 on: [push, pull_request, workflow_dispatch]
   
 env:
-  PROJECT_NAME: "pvs"
+  PROJECT_NAME: "httpserver"
   BUILD_64x: "true"
   REALM: "sv"
   FINAL_REALM: "sv"
