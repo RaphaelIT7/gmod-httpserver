@@ -164,9 +164,13 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 	return [=](const httplib::Request& req, httplib::Response& res) {
 		if (ipwhitelist) {
 			bool found = false;
+			Msg("Clients : ");
+			Msg(Gmod_Server->GetMaxClients() + "\n");
 			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
 			{
 				IClient* client = Gmod_Server->GetClient(i - 1);
+				Msg("Client ID: ");
+				Msg(i + "\n");
 				if (client->IsConnected()) {
 					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
 					std::string address = addr.ToString();
