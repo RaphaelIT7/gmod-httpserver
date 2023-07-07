@@ -164,7 +164,7 @@ void HttpServer::Think()
 				Msg(std::to_string(i).c_str());
 				Msg("\n");
 
-				IClient* client = Gmod_Server->GetClient(i - 1);
+				/*IClient* client = Gmod_Server->GetClient(i - 1);
 				if (client != nullptr && client->IsConnected()) {
 					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
 					std::string address = addr.ToString();
@@ -180,7 +180,7 @@ void HttpServer::Think()
 						Msg("\n");
 						break;
 					}
-				}
+				}*/
 			}
 
 			if (!found) {
