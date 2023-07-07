@@ -1,5 +1,8 @@
 #include "threadtools.h"
 #include "util.h"
+#include <netadr.h>
+#include "iclient.h"
+#include "inetchannel.h"
 
 CThreadFastMutex* Mutex = new CThreadFastMutex();
 
@@ -154,9 +157,29 @@ void HttpServer::Think()
 	Mutex->Unlock();
 }
 
-httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func)
+httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
 {
 	return [=](const httplib::Request& req, httplib::Response& res) {
+		if (ipwhitelist) {
+			bool found = false;
+			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
+			{
+				INetChannelInfo* channel = Engine->GetPlayerNetInfo(i);
+				if (channel == nullptr) { continue; }; // We skip bots and empty slots with this.
+
+				IClient* client = Gmod_Server->GetClient(i - 1);
+				netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
+				std::string address = addr.ToString();
+				size_t port_pos = address.find(":");
+				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == "127.0.0.1" && address.substr(0, port_pos) == "loopback")) {
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) { return; }
+		}
+
 		RequestData_t* request = new RequestData_t;
 		request->path = path;
 		request->request = req;
@@ -191,34 +214,34 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func)
 	};
 }
 
-void HttpServer::Get(const char* path, int func)
+void HttpServer::Get(const char* path, int func, bool ipwhitelist)
 {
-	server.Get(path, CreateHandler(path, func));
+	server.Get(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Post(const char* path, int func)
+void HttpServer::Post(const char* path, int func, bool ipwhitelist)
 {
-	server.Post(path, CreateHandler(path, func));
+	server.Post(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Put(const char* path, int func)
+void HttpServer::Put(const char* path, int func, bool ipwhitelist)
 {
-	server.Put(path, CreateHandler(path, func));
+	server.Put(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Patch(const char* path, int func)
+void HttpServer::Patch(const char* path, int func, bool ipwhitelist)
 {
-	server.Patch(path, CreateHandler(path, func));
+	server.Patch(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Delete(const char* path, int func)
+void HttpServer::Delete(const char* path, int func, bool ipwhitelist)
 {
-	server.Delete(path, CreateHandler(path, func));
+	server.Delete(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Options(const char* path, int func)
+void HttpServer::Options(const char* path, int func, bool ipwhitelist)
 {
-	server.Options(path, CreateHandler(path, func));
+	server.Options(path, CreateHandler(path, func, ipwhitelist));
 }
 
 void HttpServer::Start(const char* address, unsigned port)
@@ -238,7 +261,10 @@ void HttpServer::Stop()
 {
 	if (status == HTTPSERVER_OFFLINE) { return; }
 
+	Mutex->Lock();
 	server.stop();
 	delete data;
+	Mutex->Unlock();
+
 	status = HTTPSERVER_OFFLINE;
 }

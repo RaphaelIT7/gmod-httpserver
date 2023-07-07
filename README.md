@@ -1,6 +1,14 @@
 This Project aims to add a HTTPServer to Gmod.
 
 This project uses the [cpp-httplib](https://github.com/yhirose/cpp-httplib) as the HTTPServer.
+
+TODO:
+- Move IP Whitelist chec to a Pre-routing handler
+- Add a Error handler and function
+- Add a Exception handler and function
+- Add a Pre-routing handler and function
+- Add a Post-routing handler and function
+
 # Functions
 ## Basic Functions
 #### httpserver.Start(String IP, Number Port)
@@ -14,17 +22,25 @@ This is internally used to manage all requests and to call all functions needed.
 ## Method Functions
 All Method functions add a listener for the given path and the given method, like this:
 ```lua
-httpserver.Get("/", function(_, response) 
-  print("GET request") 
-  response.SetContent("You sent a GET request.", "text/plain")
+httpserver.Get("/public", function(_, response) 
+  print("Public GET request") 
+  response.SetContent("You sent a GET request to a public site.", "text/plain", false)
+end)
+
+httpserver.Get("/private", function(_, response) 
+  print("Public GET request") 
+  response.SetContent("You sent a GET request to a private site.", "text/plain", true)
 end)
 ```
-#### httpserver.Get(String path, function (Request, Response))
-#### httpserver.Put(String path, function (Request, Response))
-#### httpserver.Post(String path, function (Request, Response))
-#### httpserver.Patch(String path, function (Request, Response))
-#### httpserver.Delete(String path, function (Request, Response))
-#### httpserver.Options(String path, function (Request, Response))
+
+If you enable the IP Whitelist, only requests sent by connected players are processed.
+
+#### httpserver.Get(String path, function (Request, Response), bool ipwhitelist)
+#### httpserver.Put(String path, function (Request, Response), bool ipwhitelist)
+#### httpserver.Post(String path, function (Request, Response), bool ipwhitelist)
+#### httpserver.Patch(String path, function (Request, Response), bool ipwhitelist)
+#### httpserver.Delete(String path, function (Request, Response), bool ipwhitelist)
+#### httpserver.Options(String path, function (Request, Response), bool ipwhitelist)
 
 ## Additional Functions
 #### httpserver.IsRunning()
