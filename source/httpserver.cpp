@@ -167,6 +167,8 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 				INetChannelInfo* channel = Engine->GetPlayerNetInfo(i);
 				if (channel == nullptr) { continue; }; // We skip bots and empty slots with this.
 
+				Msg(channel->GetAddress());
+				Msg("\n");
 				if (channel->GetAddress() == req.remote_addr || (req.remote_addr == "127.0.0.1" && channel->GetAddress() == "loopback")) {
 					found = true;
 					break;
