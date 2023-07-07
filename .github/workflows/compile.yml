@@ -24,7 +24,7 @@ jobs:
       with:
         submodules: recursive
         repository: danielga/garrysmod_common
-        ref: x86-64-support-sourcesdk
+        ref: master
         path: 'garrysmod_common'
         
     - name: Install Premake
@@ -42,6 +42,45 @@ jobs:
         cd projects/linux/gmake
         make
 
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_linux.dll
+        path: projects/linux/gmake/x86/ReleaseWithSymbols/gm${{env.REALM}}_${{env.PROJECT_NAME}}_linux.dll
+
+  build-linux-64x:
+    runs-on: ubuntu-latest
+    container: debian:bullseye
+    steps:
+    - name: Install Dependencies
+      if: env.BUILD_64x == 'true'
+      run: |
+        dpkg --add-architecture i386
+        apt update
+        apt install -y build-essential git libstdc++6:i386 gcc-multilib g++-multilib wget
+    
+    - uses: actions/checkout@v3
+      if: env.BUILD_64x == 'true'
+
+    - uses: actions/checkout@v3
+      if: env.BUILD_64x == 'true'
+      with:
+        submodules: recursive
+        repository: danielga/garrysmod_common
+        ref: x86-64-support-sourcesdk
+        path: 'garrysmod_common'
+        
+    - name: Install Premake
+      if: env.BUILD_64x == 'true'
+      run: |
+        wget https://github.com/danielga/garrysmod_common/releases/download/premake-build%2F5.0.0-beta2/premake-5.0.0-beta2-linux.tar.gz -O premake.tar.gz
+        tar -xvf premake.tar.gz --directory=/usr/bin
+        gcc --version
+
+    - name: Generate Project
+      if: env.BUILD_64x == 'true'
+      run: |
+        premake5 --gmcommon=garrysmod_common gmake
+
     - name: Make 64x
       if: env.BUILD_64x == 'true'
       run: |
@@ -49,15 +88,11 @@ jobs:
         make config=releasewithsymbols_x86_64
 
     - uses: actions/upload-artifact@v2
-      with:
-        name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_linux.dll
-        path: projects/linux/gmake/x86/ReleaseWithSymbols/gm${{env.REALM}}_${{env.PROJECT_NAME}}_linux.dll
-
-    - uses: actions/upload-artifact@v2
       if: env.BUILD_64x == 'true'
       with:
         name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_linux64.dll
         path: projects/linux/gmake/x86_64/ReleaseWithSymbols/gm${{env.REALM}}_${{env.PROJECT_NAME}}_linux64.dll
+
   build-windows:
     runs-on: windows-2019
     steps:
@@ -67,7 +102,7 @@ jobs:
         submodules: recursive
         repository: danielga/garrysmod_common
         path: 'garrysmod_common'
-        ref: x86-64-support-sourcesdk
+        ref: master
 
     - name: Install Premake
       run: |
@@ -83,16 +118,41 @@ jobs:
         cd projects/windows/vs2019
         & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\msbuild.exe" /p:Configuration=ReleaseWithSymbols /p:Platform=Win32 ${{env.PROJECT_NAME}}.sln
 
-    - name: Build 64x
-      if: env.BUILD_64x == 'true'
-      run: |
-        cd projects/windows/vs2019
-        & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\msbuild.exe" /p:Configuration=ReleaseWithSymbols /p:Platform=x64 ${{env.PROJECT_NAME}}.sln
-
     - uses: actions/upload-artifact@v2
       with:
         name: gm${{env.FINAL_REALM}}_${{env.PROJECT_NAME}}_win32.dll
         path: projects/windows/vs2019/x86/ReleaseWithSymbols/gm${{env.REALM}}_${{env.PROJECT_NAME}}_win32.dll
+
+  build-windows-64x:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+      if: env.BUILD_64x == 'true'
+
+    - uses: actions/checkout@v2
+      if: env.BUILD_64x == 'true'
+      with:
+        submodules: recursive
+        repository: danielga/garrysmod_common
+        path: 'garrysmod_common'
+        ref: x86-64-support-sourcesdk
+
+    - name: Install Premake
+      if: env.BUILD_64x == 'true'
+      run: |
+         curl -L https://github.com/danielga/garrysmod_common/releases/download/premake-build%2F5.0.0-beta2/premake-5.0.0-beta2-windows.zip -o premake.zip
+         tar -xf premake.zip
+
+    - name: Generate Project
+      if: env.BUILD_64x == 'true'
+      run: |
+        ./premake5.exe --gmcommon=garrysmod_common vs2019
+
+    - name: Build
+      if: env.BUILD_64x == 'true'
+      run: |
+        cd projects/windows/vs2019
+        & "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\msbuild.exe" /p:Configuration=ReleaseWithSymbols /p:Platform=x64 ${{env.PROJECT_NAME}}.sln
 
     - uses: actions/upload-artifact@v2
       if: env.BUILD_64x == 'true'
