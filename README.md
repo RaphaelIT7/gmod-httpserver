@@ -1,6 +1,14 @@
 This Project aims to add a HTTPServer to Gmod.
 
 This project uses the [cpp-httplib](https://github.com/yhirose/cpp-httplib) as the HTTPServer.
+
+TODO:
+- Move IP Whitelist chec to a Pre-routing handler
+- Add a Error handler and function
+- Add a Exception handler and function
+- Add a Pre-routing handler and function
+- Add a Post-routing handler and function
+
 # Functions
 ## Basic Functions
 #### httpserver.Start(String IP, Number Port)
