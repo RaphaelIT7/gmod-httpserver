@@ -150,18 +150,6 @@ void HttpServer::Think()
 			return;
 		}
 
-		CallFunc(entry->func, entry->request, entry->response_data);
-		entry->handled = true;
-	}
-
-	Mutex->Lock();
-	data->update = false;
-	Mutex->Unlock();
-}
-
-httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
-{
-	return [=](const httplib::Request& req, httplib::Response& res) {
 		if (ipwhitelist) {
 			bool found = false;
 			Msg("Clients : ");
@@ -177,9 +165,9 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 					Msg("Checking Player\n");
 					Msg(address.substr(1, address.length() - 6).c_str());
 					Msg("\n");
-					Msg(req.remote_addr.c_str());
+					Msg(entry->request.remote_addr.c_str());
 					Msg("\n");
-					if (address.substr(1, address.length() - 6) == req.remote_addr) {
+					if (address.substr(1, address.length() - 6) == entry->request.remote_addr) {
 						found = true;
 						Msg("Found Player\n");
 						Msg(address.c_str());
@@ -190,11 +178,23 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 			}
 
 			if (!found) {
-				res.set_content("", "text/plain");
+				Msg("Failed to verify Client\n");
 				return;
 			}
 		}
 
+		CallFunc(entry->func, entry->request, entry->response_data);
+		entry->handled = true;
+	}
+
+	Mutex->Lock();
+	data->update = false;
+	Mutex->Unlock();
+}
+
+httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
+{
+	return [=](const httplib::Request& req, httplib::Response& res) {
 		RequestData_t* request = new RequestData_t;
 		request->path = path;
 		request->request = req;
