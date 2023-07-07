@@ -152,8 +152,9 @@ void HttpServer::Think()
 		entry->handled = true;
 
 		bool found = false;
-		Msg("Clients : ");
-		Msg(Gmod_Server->GetMaxClients() + "\n");
+		Msg("Clients\n");
+		Msg(std::to_string(Gmod_Server->GetMaxClients()).c_str());
+		Msg("\n");
 	}
 
 	Mutex->Lock();
