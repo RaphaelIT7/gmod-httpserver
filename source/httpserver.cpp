@@ -150,43 +150,6 @@ void HttpServer::Think()
 
 		CallFunc(entry->func, entry->request, entry->response_data);
 		entry->handled = true;
-
-		bool found = false;
-		Msg("Clients\n");
-		Msg(std::to_string(Gmod_Server->GetMaxClients()).c_str());
-		Msg("\n");
-
-			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
-			{
-				edict_t* ent = Engine->PEntityOfEntIndex(i);
-				if (ent->m_EdictIndex != i) { Msg("ERROR INCOMMINT\n");}
-				Msg("Client ID: ");
-				Msg(std::to_string(i).c_str());
-				Msg("\n");
-
-				/*IClient* client = Gmod_Server->GetClient(i - 1);
-				if (client != nullptr && client->IsConnected()) {
-					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
-					std::string address = addr.ToString();
-					Msg("Checking Player\n");
-					Msg(address.substr(1, address.length() - 6).c_str());
-					Msg("\n");
-					Msg(entry->request.remote_addr.c_str());
-					Msg("\n");
-					if (address.substr(1, address.length() - 6) == entry->request.remote_addr) {
-						found = true;
-						Msg("Found Player\n");
-						Msg(address.c_str());
-						Msg("\n");
-						break;
-					}
-				}*/
-			}
-
-			if (!found) {
-				Msg("Failed to verify Client\n");
-				return;
-			}
 	}
 
 	Mutex->Lock();
@@ -197,6 +160,43 @@ void HttpServer::Think()
 httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
 {
 	return [=](const httplib::Request& req, httplib::Response& res) {
+		if (ipwhitelist) {
+			bool found = false;
+			Msg("Clients\n");
+			Msg(std::to_string(Gmod_Server->GetMaxClients()).c_str());
+			Msg("\n");
+
+			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
+			{
+				if (Engine->GetPlayerNetInfo(i) == nullptr) { continue; }
+				Msg("Client ID: ");
+				Msg(std::to_string(i).c_str());
+				Msg("\n");
+
+				IClient* client = Gmod_Server->GetClient(i - 1);
+				netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
+				std::string address = addr.ToString();
+				size_t port_pos = address.find(":");
+				Msg("Checking Player\n");
+				Msg(address.substr(0, port_pos).c_str());
+				Msg("\n");
+				Msg(req.remote_addr.c_str());
+				Msg("\n");
+				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == "127.0.0.1" && address.substr(0, port_pos) == "loopback")) {
+					found = true;
+					Msg("Found Player\n");
+					Msg(address.c_str());
+					Msg("\n");
+					break;
+				}
+			}
+
+			if (!found) {
+				Msg("Failed to verify Client\n");
+				return;
+			}
+		}
+
 		RequestData_t* request = new RequestData_t;
 		request->path = path;
 		request->request = req;
