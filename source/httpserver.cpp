@@ -7,7 +7,9 @@ unsigned Server(void * params)
 {
 	ThreadData_t* data = (ThreadData_t*)params;
 
+	Mutex->Lock();
 	HTTPServer->server.listen(data->address, data->port);
+	Mutex->Unlock();
 
 	return 0;
 }
