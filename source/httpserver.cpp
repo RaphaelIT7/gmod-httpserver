@@ -167,9 +167,11 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 				INetChannelInfo* channel = Engine->GetPlayerNetInfo(i);
 				if (channel == nullptr) { continue; }; // We skip bots and empty slots with this.
 
-				Msg(channel->GetAddress());
-				Msg("\n");
-				if (channel->GetAddress() == req.remote_addr || (req.remote_addr == "127.0.0.1" && channel->GetAddress() == "loopback")) {
+				IClient* client = Gmod_Server->GetClient(i - 1);
+				netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
+				std::string address = addr.ToString();
+				size_t port_pos = address.find(":");
+				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == "127.0.0.1" && address.substr(0, port_pos) == "loopback")) {
 					found = true;
 					break;
 				}
