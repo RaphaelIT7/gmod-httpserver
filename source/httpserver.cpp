@@ -162,39 +162,18 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 	return [=](const httplib::Request& req, httplib::Response& res) {
 		if (ipwhitelist) {
 			bool found = false;
-			Msg("Clients\n");
-			Msg(std::to_string(Gmod_Server->GetMaxClients()).c_str());
-			Msg("\n");
-
 			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
 			{
-				if (Engine->GetPlayerNetInfo(i) == nullptr) { continue; }
-				Msg("Client ID: ");
-				Msg(std::to_string(i).c_str());
-				Msg("\n");
+				INetChannelInfo* channel = Engine->GetPlayerNetInfo(i);
+				if (channel == nullptr) { continue; }; // We skip bots and empty slots with this.
 
-				IClient* client = Gmod_Server->GetClient(i - 1);
-				netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
-				std::string address = addr.ToString();
-				size_t port_pos = address.find(":");
-				Msg("Checking Player\n");
-				Msg(address.substr(0, port_pos).c_str());
-				Msg("\n");
-				Msg(req.remote_addr.c_str());
-				Msg("\n");
-				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == "127.0.0.1" && address.substr(0, port_pos) == "loopback")) {
+				if (channel->GetAddress() == req.remote_addr || (req.remote_addr == "127.0.0.1" && channel->GetAddress() == "loopback")) {
 					found = true;
-					Msg("Found Player\n");
-					Msg(address.c_str());
-					Msg("\n");
 					break;
 				}
 			}
 
-			if (!found) {
-				Msg("Failed to verify Client\n");
-				return;
-			}
+			if (!found) { return; }
 		}
 
 		RequestData_t* request = new RequestData_t;
