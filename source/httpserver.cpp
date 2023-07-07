@@ -156,7 +156,7 @@ void HttpServer::Think()
 	Mutex->Unlock();
 }
 
-httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func)
+httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
 {
 	return [=](const httplib::Request& req, httplib::Response& res) {
 		RequestData_t* request = new RequestData_t;
@@ -193,34 +193,34 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func)
 	};
 }
 
-void HttpServer::Get(const char* path, int func)
+void HttpServer::Get(const char* path, int func, bool ipwhitelist)
 {
-	server.Get(path, CreateHandler(path, func));
+	server.Get(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Post(const char* path, int func)
+void HttpServer::Post(const char* path, int func, bool ipwhitelist)
 {
-	server.Post(path, CreateHandler(path, func));
+	server.Post(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Put(const char* path, int func)
+void HttpServer::Put(const char* path, int func, bool ipwhitelist)
 {
-	server.Put(path, CreateHandler(path, func));
+	server.Put(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Patch(const char* path, int func)
+void HttpServer::Patch(const char* path, int func, bool ipwhitelist)
 {
-	server.Patch(path, CreateHandler(path, func));
+	server.Patch(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Delete(const char* path, int func)
+void HttpServer::Delete(const char* path, int func, bool ipwhitelist)
 {
-	server.Delete(path, CreateHandler(path, func));
+	server.Delete(path, CreateHandler(path, func, ipwhitelist));
 }
 
-void HttpServer::Options(const char* path, int func)
+void HttpServer::Options(const char* path, int func, bool ipwhitelist)
 {
-	server.Options(path, CreateHandler(path, func));
+	server.Options(path, CreateHandler(path, func, ipwhitelist));
 }
 
 void HttpServer::Start(const char* address, unsigned port)
