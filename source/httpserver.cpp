@@ -162,7 +162,7 @@ void HttpServer::Think()
 				Msg("Client ID: ");
 				Msg(std::to_string(i).c_str());
 				Msg("\n");
-				if (client->IsConnected()) {
+				if (client != nullptr && client->IsConnected()) {
 					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
 					std::string address = addr.ToString();
 					Msg("Checking Player\n");
