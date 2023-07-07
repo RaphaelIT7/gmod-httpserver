@@ -151,38 +151,9 @@ void HttpServer::Think()
 		CallFunc(entry->func, entry->request, entry->response_data);
 		entry->handled = true;
 
-		if (true) {
-			bool found = false;
-			Msg("Clients : ");
-			Msg(Gmod_Server->GetMaxClients() + "\n");
-			for (int i = 1; i <= Gmod_Server->GetMaxClients(); ++i)
-			{
-				IClient* client = Gmod_Server->GetClient(i - 1);
-				Msg("Client ID: ");
-				Msg(i + "\n");
-				if (client->IsConnected()) {
-					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
-					std::string address = addr.ToString();
-					Msg("Checking Player\n");
-					Msg(address.substr(1, address.length() - 6).c_str());
-					Msg("\n");
-					Msg(entry->request.remote_addr.c_str());
-					Msg("\n");
-					if (address.substr(1, address.length() - 6) == entry->request.remote_addr) {
-						found = true;
-						Msg("Found Player\n");
-						Msg(address.c_str());
-						Msg("\n");
-						break;
-					}
-				}
-			}
-
-			if (!found) {
-				Msg("Failed to verify Client\n");
-				return;
-			}
-		}
+		bool found = false;
+		Msg("Clients : ");
+		Msg(Gmod_Server->GetMaxClients() + "\n");
 	}
 
 	Mutex->Lock();
