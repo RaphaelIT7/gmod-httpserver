@@ -7,9 +7,7 @@ unsigned Server(void * params)
 {
 	ThreadData_t* data = (ThreadData_t*)params;
 
-	Mutex->Lock();
 	HTTPServer->server.listen(data->address, data->port);
-	Mutex->Unlock();
 
 	return 0;
 }
@@ -240,7 +238,10 @@ void HttpServer::Stop()
 {
 	if (status == HTTPSERVER_OFFLINE) { return; }
 
+	Mutex->Lock();
 	server.stop();
 	delete data;
+	Mutex->Unlock();
+
 	status = HTTPSERVER_OFFLINE;
 }
