@@ -170,8 +170,16 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 				if (client->IsConnected()) {
 					netadr_s addr = client->GetNetChannel()->GetRemoteAddress();
 					std::string address = addr.ToString();
+					Msg("Checking Player\n");
+					Msg(address.substr(1, address.length() - 6).c_str());
+					Msg("\n");
+					Msg(req.remote_addr.c_str());
+					Msg("\n");
 					if (address.substr(1, address.length() - 6) == req.remote_addr) {
 						found = true;
+						Msg("Found Player\n");
+						Msg(address.c_str());
+						Msg("\n");
 						break;
 					}
 				}
