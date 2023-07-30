@@ -9,4 +9,3 @@ jobs:
       PROJECT_NAME: "httpserver"
       BUILD_64x: "true"
       REALM: "sv"
-      FINAL_REALM: "sv"
