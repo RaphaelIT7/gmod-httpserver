@@ -3,7 +3,7 @@ This Project aims to add a HTTPServer to Gmod.
 This project uses the [cpp-httplib](https://github.com/yhirose/cpp-httplib) as the HTTPServer.
 
 TODO:
-- Move IP Whitelist chec to a Pre-routing handler
+- Move IP Whitelist check to a Pre-routing handler
 - Add a Error handler and function
 - Add a Exception handler and function
 - Add a Pre-routing handler and function
@@ -24,13 +24,13 @@ All Method functions add a listener for the given path and the given method, lik
 ```lua
 httpserver.Get("/public", function(_, response) 
   print("Public GET request") 
-  response.SetContent("You sent a GET request to a public site.", "text/plain", false)
-end)
+  response.SetContent("You sent a GET request to a public site.", "text/plain")
+end, false)
 
 httpserver.Get("/private", function(_, response) 
-  print("Public GET request") 
-  response.SetContent("You sent a GET request to a private site.", "text/plain", true)
-end)
+  print("Private GET request") 
+  response.SetContent("You sent a GET request to a private site.", "text/plain")
+end, true)
 ```
 
 If you enable the IP Whitelist, only requests sent by connected players are processed.
