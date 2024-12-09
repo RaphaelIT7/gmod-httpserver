@@ -1,13 +1,14 @@
-﻿#include <GarrysMod/Lua/Interface.h>
-#include <GarrysMod/InterfacePointers.hpp>
+﻿#include <GarrysMod/InterfacePointers.hpp>
 #include <GarrysMod/FactoryLoader.hpp>
 #include "util.h"
 
 GMOD_MODULE_OPEN()
 {
-	GlobalLUA = LUA;
+	g_Lua = LUA;
 
-	HTTPServer = new HttpServer();
+	Util::server = InterfacePointers::Server();
+	if (Util::server == nullptr)
+		LUA->ThrowError("Failed to get IServer");
 
 	Gmod_Server = InterfacePointers::Server();
 	if (Gmod_Server == nullptr)
@@ -24,7 +25,5 @@ GMOD_MODULE_OPEN()
 
 GMOD_MODULE_CLOSE()
 {
-	HTTPServer->Stop();
-
 	return 0;
 }

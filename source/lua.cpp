@@ -1,194 +1,296 @@
-#include <GarrysMod/FactoryLoader.hpp>
-#include <GarrysMod/Lua/Interface.h>
 #include "util.h"
 
-static SourceSDK::FactoryLoader luashared_loader("lua_shared");
+static int HttpServer_TypeID = -1;
+PushReferenced_LuaClass(HttpServer, HttpServer_TypeID)
+Get_LuaClass(HttpServer, HttpServer_TypeID, "HttpServer")
 
-LUA_FUNCTION(Think)
+LUA_FUNCTION_STATIC(HttpServer_Think)
 {
-	HTTPServer->Think();
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->Think();
 
 	return 0;
 }
 
-LUA_FUNCTION(Get)
+inline int CheckFunction(GarrysMod::Lua::ILuaInterface* LUA, int iStackPos)
 {
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
-
-	HTTPServer->Get(path, func, ip_whitelist);
-
-	return 0;
+	LUA->CheckType(iStackPos, GarrysMod::Lua::Type::Function);
+	LUA->Push(iStackPos);
+	return LUA->ReferenceCreate();
 }
 
-LUA_FUNCTION(Post)
+inline bool CheckBool(GarrysMod::Lua::ILuaInterface* LUA, int iStackPos)
 {
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
-
-	HTTPServer->Post(path, func, ip_whitelist);
-
-	return 0;
+	LUA->CheckType(iStackPos, GarrysMod::Lua::Type::Bool);
+	return LUA->GetBool(iStackPos);
 }
 
-LUA_FUNCTION(Put)
+LUA_FUNCTION_STATIC(HttpServer__tostring)
 {
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
+	HttpServer* pServer = Get_HttpServer(1, false);
+	if (!pServer)
+	{
+		LUA->PushString("HttpServer [NULL]");
+		return 1;
+	}
 
-	HTTPServer->Put(path, func, ip_whitelist);
-
-	return 0;
+	char szBuf[64] = {};
+	V_snprintf(szBuf, sizeof(szBuf),"HttpServer [%s]", (pServer->GetAddress() + std::to_string(pServer->GetPort())).c_str()); 
+	LUA->PushString(szBuf);
+	return 1;
 }
 
-LUA_FUNCTION(Patch)
+LUA_FUNCTION_STATIC(HttpServer__index)
 {
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
+	if (LUA->FindOnObjectsMetaTable(1, 2))
+		return 1;
 
-	HTTPServer->Patch(path, func, ip_whitelist);
+	LUA->Pop(1);
+	LUA->ReferencePush(g_pPushedHttpServer[Get_HttpServer(1, true)]->iTableReference);
+	if (!LUA->FindObjectOnTable(-1, 2))
+		LUA->PushNil();
 
-	return 0;
-}
-
-LUA_FUNCTION(Delete)
-{
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
-
-	HTTPServer->Delete(path, func, ip_whitelist);
-
-	return 0;
-}
-
-LUA_FUNCTION(Options)
-{
-	const char* path = LUA->CheckString(1);
-	bool ip_whitelist = LUA->GetBool(3);
-	LUA->CheckType(2, Type::Function);
-	LUA->Push(2);
-	int func = LUA->ReferenceCreate();
-
-	HTTPServer->Options(path, func, ip_whitelist);
-
-	return 0;
-}
-
-LUA_FUNCTION(IsRunning)
-{
-	LUA->PushBool(HTTPServer->status == HTTPSERVER_ONLINE);
+	LUA->Remove(-2);
 
 	return 1;
 }
 
-LUA_FUNCTION(SetTCPnodelay)
+LUA_FUNCTION_STATIC(HttpServer__newindex)
 {
-	LUA->CheckType(1, Type::BOOL);
-	HTTPServer->server.set_tcp_nodelay(LUA->GetBool(1));
-	return 0;
-}
-
-LUA_FUNCTION(SetReadTimeout)
-{
-	HTTPServer->server.set_read_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
-	return 0;
-}
-
-LUA_FUNCTION(SetWriteTimeout)
-{
-	HTTPServer->server.set_write_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
-	return 0;
-}
-
-LUA_FUNCTION(SetPayloadMaxLength)
-{
-	HTTPServer->server.set_payload_max_length(LUA->CheckNumber(1));
-	return 0;
-}
-
-LUA_FUNCTION(SetKeepAliveTimeout)
-{
-	HTTPServer->server.set_keep_alive_timeout(LUA->CheckNumber(1));
-	return 0;
-}
-
-LUA_FUNCTION(SetKeepAliveMaxCount)
-{
-	HTTPServer->server.set_keep_alive_max_count(LUA->CheckNumber(1));
-	return 0;
-}
-
-LUA_FUNCTION(SetMountPoint)
-{
-	HTTPServer->server.set_mount_point(LUA->CheckString(1), LUA->CheckString(2));
-	return 0;
-}
-
-LUA_FUNCTION(RemoveMountPoint)
-{
-	HTTPServer->server.remove_mount_point(LUA->CheckString(1));
-	return 0;
-}
-
-LUA_FUNCTION(Start)
-{
-	const char* address = LUA->CheckString(1);
-	unsigned port = LUA->CheckNumber(2);
-
-	HTTPServer->Start(address, port);
+	LUA->ReferencePush(g_pPushedHttpServer[Get_HttpServer(1, true)]->iTableReference);
+	LUA->Push(2);
+	LUA->Push(3);
+	LUA->RawSet(-3);
+	LUA->Pop(1);
 
 	return 0;
 }
 
-LUA_FUNCTION(Stop)
+LUA_FUNCTION_STATIC(HttpServer_GetTable)
 {
-	HTTPServer->Stop();
+	LUA->ReferencePush(g_pPushedHttpServer[Get_HttpServer(1, true)]->iTableReference);
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Get)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Get(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Post)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Post(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Put)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Put(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Patch)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Patch(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Delete)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Delete(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Options)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* path = LUA->CheckString(2);
+	int func = CheckFunction(LUA, 3);
+	bool ipWhitelist = LUA->GetBool(4);
+
+	pServer->Options(path, func, ipWhitelist);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_IsRunning)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	LUA->PushBool(pServer->GetStatus() == HTTPSERVER_ONLINE);
+
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetTCPnodelay)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_tcp_nodelay(CheckBool(LUA, 2));
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetReadTimeout)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_read_timeout(LUA->CheckNumber(2), LUA->CheckNumber(3));
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetWriteTimeout)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_write_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetPayloadMaxLength)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_payload_max_length(LUA->CheckNumber(2));
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetKeepAliveTimeout)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_keep_alive_timeout(LUA->CheckNumber(2));
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetKeepAliveMaxCount)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_keep_alive_max_count(LUA->CheckNumber(2));
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_SetMountPoint)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().set_mount_point(LUA->CheckString(2), LUA->CheckString(3));
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_RemoveMountPoint)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->GetServer().remove_mount_point(LUA->CheckString(2));
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Start)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	const char* address = LUA->CheckString(2);
+	unsigned port = LUA->CheckNumber(3);
+
+	pServer->Start(address, port);
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(HttpServer_Stop)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->Stop();
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(httpserver_Create)
+{
+	Push_HttpServer(new HttpServer);
+	return 1;
+}
+
+LUA_FUNCTION_STATIC(httpserver_Destroy)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+
+	if (pServer->GetStatus() == HTTPSERVER_ONLINE)
+		pServer->Stop();
+
+	Delete_HttpServer(pServer);
+	delete pServer;
 
 	return 0;
 }
 
 void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 {
-	Start_Table(LUA);
-		Add_Func(LUA, Think, "Think");
-		Add_Func(LUA, Start, "Start");
-		Add_Func(LUA, Stop, "Stop");
+	RequestData_LuaInit();
 
-		Add_Func(LUA, IsRunning, "IsRunning");
-		Add_Func(LUA, SetTCPnodelay, "SetTCPnodelay");
-		Add_Func(LUA, SetReadTimeout, "SetReadTimeout");
-		Add_Func(LUA, SetWriteTimeout, "SetWriteTimeout");
-		Add_Func(LUA, SetPayloadMaxLength, "SetPayloadMaxLength");
-		Add_Func(LUA, SetKeepAliveTimeout, "SetKeepAliveTimeout");
-		Add_Func(LUA, SetKeepAliveMaxCount, "SetKeepAliveMaxCount");
+	HttpServer_TypeID = g_Lua->CreateMetaTable("HttpServer");
+		Util::AddFunc(HttpServer__tostring, "__tostring");
+		Util::AddFunc(HttpServer__index, "__index");
+		Util::AddFunc(HttpServer__newindex, "__newindex");
+		Util::AddFunc(HttpServer_GetTable, "GetTable");
 
-		Add_Func(LUA, SetMountPoint, "SetMountPoint");
-		Add_Func(LUA, RemoveMountPoint, "RemoveMountPoint");
+		Util::AddFunc(HttpServer_Think, "Think");
+		Util::AddFunc(HttpServer_Start, "Start");
+		Util::AddFunc(HttpServer_Stop, "Stop");
 
-		Add_Func(LUA, Get, "Get");
-		Add_Func(LUA, Post, "Post");
-		Add_Func(LUA, Put, "Put");
-		Add_Func(LUA, Patch, "Patch");
-		Add_Func(LUA, Delete, "Delete");
-		Add_Func(LUA, Options, "Options");
-	Finish_Table(LUA, "httpserver");
+		Util::AddFunc(HttpServer_IsRunning, "IsRunning");
+		Util::AddFunc(HttpServer_SetTCPnodelay, "SetTCPnodelay");
+		Util::AddFunc(HttpServer_SetReadTimeout, "SetReadTimeout");
+		Util::AddFunc(HttpServer_SetWriteTimeout, "SetWriteTimeout");
+		Util::AddFunc(HttpServer_SetPayloadMaxLength, "SetPayloadMaxLength");
+		Util::AddFunc(HttpServer_SetKeepAliveTimeout, "SetKeepAliveTimeout");
+		Util::AddFunc(HttpServer_SetKeepAliveMaxCount, "SetKeepAliveMaxCount");
 
-	LUA->PushSpecial(SPECIAL_GLOB);
+		Util::AddFunc(HttpServer_SetMountPoint, "SetMountPoint");
+		Util::AddFunc(HttpServer_RemoveMountPoint, "RemoveMountPoint");
+
+		Util::AddFunc(HttpServer_Get, "Get");
+		Util::AddFunc(HttpServer_Post, "Post");
+		Util::AddFunc(HttpServer_Put, "Put");
+		Util::AddFunc(HttpServer_Patch, "Patch");
+		Util::AddFunc(HttpServer_Delete, "Delete");
+		Util::AddFunc(HttpServer_Options, "Options");
+	g_Lua->Pop(1);
+
+	Util::StartTable();
+		Util::AddFunc(httpserver_Create, "Create");
+		Util::AddFunc(httpserver_Destroy, "Destroy");
+	Util::FinishTable("httpserver");
+
+	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
 		LUA->GetField(-1, "RunString");
 		LUA->PushString("\
 hook.Add('Think', 'HTTPServer', function()\
@@ -198,14 +300,5 @@ end)");
 	LUA->Pop();
 
 
-	LuaPrint("[HTTPServer] Successfully Loaded.");
-}
-
-GarrysMod::Lua::ILuaBase* GetRealm(int realm)
-{
-	CLuaShared* LuaShared = (CLuaShared*)luashared_loader.GetFactory()("LUASHARED003", nullptr);
-	if (LuaShared == nullptr)
-		Msg("I've failed\nYou\n");
-
-	return LuaShared->GetLuaInterface(realm);
+	Msg("[HTTPServer] Successfully Loaded.\n");
 }

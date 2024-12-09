@@ -1,58 +1,175 @@
 #pragma once
 
-#include "GarrysMod/Lua/Interface.h"
+#include "LuaInterface.h"
 #include "httpserver.h"
 #include <string>
 #include "lua.h"
-#include "iserver.h"
-#include "eiface.h"
+#include <vector>
 
-using namespace GarrysMod::Lua;
+extern GarrysMod::Lua::ILuaInterface* g_Lua;
 
-extern GarrysMod::Lua::ILuaBase* GlobalLUA;
-extern HttpServer* HTTPServer;
-extern IServer* Gmod_Server;
-extern IVEngineServer* Engine;
+class IServer;
+class CBaseClient;
 
-extern void LuaPrint(const char*);
-extern void LuaPrint(std::string);
-extern void LuaPrint(const char*, GarrysMod::Lua::ILuaBase*);
-extern void LuaPrint(std::string, GarrysMod::Lua::ILuaBase*);
-
-extern void Start_Table(GarrysMod::Lua::ILuaBase*);
-
-extern void Add_Func(GarrysMod::Lua::ILuaBase*, CFunc, const char*);
-extern void Add_Func(GarrysMod::Lua::ILuaBase*, CFunc, std::string);
-
-extern void Finish_Table(GarrysMod::Lua::ILuaBase*, const char*);
-extern void Finish_Table(GarrysMod::Lua::ILuaBase*, std::string);
-
-extern void ThrowError(const char*);
-
-enum
+namespace Util
 {
-	Realm_Client,
-	Realm_Server,
-	Realm_Menu
+	extern IServer* server;
+
+	inline void StartTable() {
+		g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		g_Lua->CreateTable();
+	}
+
+	inline void AddFunc(GarrysMod::Lua::CFunc Func, const char* Name) {
+		g_Lua->PushString(Name);
+		g_Lua->PushCFunction(Func);
+		g_Lua->RawSet(-3);
+	}
+
+	inline void AddValue(double value, const char* Name) {
+		g_Lua->PushString(Name);
+		g_Lua->PushNumber(value);
+		g_Lua->RawSet(-3);
+	}
+
+	inline void FinishTable(const char* Name) {
+		g_Lua->SetField(-2, Name);
+		g_Lua->Pop();
+	}
+
+	inline void NukeTable(const char* pName)
+	{
+		g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		g_Lua->PushNil();
+		g_Lua->SetField(-2, pName);
+		g_Lua->Pop(1);
+	}
+
+	inline bool PushTable(const char* pName)
+	{
+		g_Lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+		g_Lua->GetField(-1, pName);
+		g_Lua->Remove(-2);
+		if (g_Lua->IsType(-1, GarrysMod::Lua::Type::Table))
+			return true;
+
+		g_Lua->Pop(1);
+		return false;
+	}
+
+	inline void PopTable()
+	{
+		g_Lua->Pop(1);
+	}
+
+	inline void RemoveField(const char* pName)
+	{
+		g_Lua->PushNil();
+		g_Lua->SetField(-2, pName);
+	}
+
+	inline bool HasField(const char* pName, int iType)
+	{
+		g_Lua->GetField(-1, pName);
+		return g_Lua->IsType(-1, iType);
+	}
+
+	extern std::vector<CBaseClient*> GetClients();
+}
+
+#define MakeString( str1, str2, str3 ) ((std::string)str1).append(str2).append(str3)
+#define Get_LuaClass( className, luaType, strName ) \
+static std::string invalidType_##className = MakeString("Tried to use something that wasn't a ", strName, "!"); \
+static std::string triedNull_##className = MakeString("Tried to use a NULL ", strName, "!"); \
+className* Get_##className(int iStackPos, bool bError) \
+{ \
+	if (!g_Lua->IsType(iStackPos, luaType)) \
+	{ \
+		if (bError) \
+			g_Lua->ThrowError(invalidType_##className.c_str()); \
+\
+		return NULL; \
+	} \
+\
+	className* pVar = g_Lua->GetUserType<className>(iStackPos, luaType); \
+	if (!pVar && bError) \
+		g_Lua->ThrowError(triedNull_##className.c_str()); \
+\
+	return pVar; \
+}
+
+struct LuaUserData { // ToDo: Maybe implement this also for other things?
+	~LuaUserData() {
+		if (iReference != -1)
+		{
+			g_Lua->ReferencePush(iReference);
+			g_Lua->SetUserType(-1, NULL);
+			g_Lua->Pop(1);
+			g_Lua->ReferenceFree(iReference);
+			iReference = -1;
+		}
+
+		if (iTableReference != -1)
+		{
+			g_Lua->ReferenceFree(iTableReference);
+			iTableReference = -1;
+		}
+
+		pAdditionalData = NULL;
+	}
+
+	int iReference = -1;
+	int iTableReference = -1;
+	int pAdditionalData = NULL; // Used by HLTVClient.
 };
 
-class CLuaShared
-{
-public:
-	virtual ~CLuaShared() = 0;
-	virtual int Init(const char*, const char*, void*, void*) = 0;
-	virtual int Shutdown(void) = 0;
-	virtual int DumpStats(void) = 0;
-	virtual GarrysMod::Lua::ILuaBase* CreateLuaInterface(int, bool) = 0;
-	virtual int CloseLuaInterface(GarrysMod::Lua::ILuaBase*) = 0;
-	virtual GarrysMod::Lua::ILuaBase* GetLuaInterface(int) = 0;
-	virtual int LoadFile(std::string, std::string, std::string, bool) = 0;
-	virtual int GetCache(std::string) = 0;
-	virtual int MountLua(const char*) = 0;
-	virtual int MountLuaAdd(const char*, const char*) = 0;
-	virtual int UnMountLua(const char*) = 0;
-	virtual void SetFileContents() = 0;
-	virtual int SetLuaFindHook(void*) = 0;
-	virtual int FindScripts() = 0;
-	virtual void* GetStackTraces() = 0;
-};
+// This one is special
+#define PushReferenced_LuaClass( className, luaType ) \
+static std::unordered_map<className*, LuaUserData*> g_pPushed##className; \
+void Push_##className(className* var) \
+{ \
+	if (!var) \
+	{ \
+		g_Lua->PushNil(); \
+		return; \
+	} \
+\
+	auto it = g_pPushed##className.find(var); \
+	if (it != g_pPushed##className.end()) \
+	{ \
+		g_Lua->ReferencePush(it->second->iReference); \
+	} else { \
+		g_Lua->PushUserType(var, luaType); \
+		g_Lua->Push(-1); \
+		LuaUserData* userData = new LuaUserData; \
+		userData->iReference = g_Lua->ReferenceCreate(); \
+		g_Lua->CreateTable(); \
+		userData->iTableReference = g_Lua->ReferenceCreate(); \
+		g_pPushed##className[var] = userData; \
+	} \
+} \
+\
+void Delete_##className(className* var) \
+{ \
+	auto it = g_pPushed##className.find(var); \
+	if (it != g_pPushed##className.end()) \
+	{ \
+		delete it->second; \
+		g_pPushed##className.erase(it); \
+	} \
+}
+
+#define Vector_RemoveElement(vec, element) \
+{ \
+    auto _it = std::find((vec).begin(), (vec).end(), (element)); \
+    if (_it != (vec).end()) \
+        (vec).erase(_it); \
+}
+
+extern void RequestData_LuaInit();
+
+extern void Push_RequestData(RequestData* pData);
+extern void Delete_RequestData(RequestData* pData);
+
+extern void Push_ResponseData(ResponseData* pData);
+extern void Delete_ResponseData(ResponseData* pData);
