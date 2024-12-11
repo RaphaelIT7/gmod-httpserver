@@ -32,7 +32,7 @@ enum
 class HttpServer
 {
 public:
-	void Start(const char* address, unsigned port);
+	void Start(const char* address, unsigned short port);
 	void Stop();
 	void Think();
 

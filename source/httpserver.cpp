@@ -17,7 +17,7 @@ void CallFunc(int func, HttpRequest* request, HttpResponse* response)
 	Delete_HttpResponse(response); // Destroys the Lua reference after we used it
 }
 
-void HttpServer::Start(const char* address, unsigned port)
+void HttpServer::Start(const char* address, unsigned short port)
 {
 	if (m_iStatus != HTTPSERVER_OFFLINE)
 		Stop();

@@ -218,7 +218,7 @@ LUA_FUNCTION_STATIC(HttpServer_Start)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
 	const char* address = LUA->CheckString(2);
-	unsigned int port = (unsigned int)LUA->CheckNumber(3);
+	unsigned short port = (unsigned short)LUA->CheckNumber(3);
 
 	pServer->Start(address, port);
 

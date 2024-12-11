@@ -61,7 +61,7 @@ LUA_FUNCTION_STATIC(HttpResponse_SetRedirect)
 	HttpResponse* pData = Get_HttpResponse(1, true);
 	pData->bSetRedirect = true;
 	pData->strRedirect = LUA->CheckString(2);
-	pData->iRedirectCode = LUA->CheckNumber(3);
+	pData->iRedirectCode = (int)LUA->CheckNumber(3);
 
 	return 0;
 }
