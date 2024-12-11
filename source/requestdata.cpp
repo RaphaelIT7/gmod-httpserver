@@ -1,26 +1,26 @@
 #include "util.h"
 
-static int ResponseData_TypeID = -1;
-PushReferenced_LuaClass(ResponseData, ResponseData_TypeID)
-Get_LuaClass(ResponseData, ResponseData_TypeID, "ResponseData")
+static int HttpResponse_TypeID = -1;
+PushReferenced_LuaClass(HttpResponse, HttpResponse_TypeID)
+Get_LuaClass(HttpResponse, HttpResponse_TypeID, "HttpResponse")
 
-LUA_FUNCTION_STATIC(ResponseData__tostring)
+LUA_FUNCTION_STATIC(HttpResponse__tostring)
 {
-	ResponseData* pData = Get_ResponseData(1, false);
+	HttpResponse* pData = Get_HttpResponse(1, false);
 	if (!pData)
-		LUA->PushString("ResponseData [NULL]");
+		LUA->PushString("HttpResponse [NULL]");
 	else
-		LUA->PushString("ResponseData");
+		LUA->PushString("HttpResponse");
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(ResponseData__index)
+LUA_FUNCTION_STATIC(HttpResponse__index)
 {
 	if (LUA->FindOnObjectsMetaTable(1, 2))
 		return 1;
 
 	LUA->Pop(1);
-	LUA->ReferencePush(g_pPushedResponseData[Get_ResponseData(1, true)]->iTableReference);
+	LUA->ReferencePush(g_pPushedHttpResponse[Get_HttpResponse(1, true)]->iTableReference);
 	if (!LUA->FindObjectOnTable(-1, 2))
 		LUA->PushNil();
 
@@ -29,9 +29,9 @@ LUA_FUNCTION_STATIC(ResponseData__index)
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(ResponseData__newindex)
+LUA_FUNCTION_STATIC(HttpResponse__newindex)
 {
-	LUA->ReferencePush(g_pPushedResponseData[Get_ResponseData(1, true)]->iTableReference);
+	LUA->ReferencePush(g_pPushedHttpResponse[Get_HttpResponse(1, true)]->iTableReference);
 	LUA->Push(2);
 	LUA->Push(3);
 	LUA->RawSet(-3);
@@ -40,15 +40,15 @@ LUA_FUNCTION_STATIC(ResponseData__newindex)
 	return 0;
 }
 
-LUA_FUNCTION_STATIC(ResponseData_GetTable)
+LUA_FUNCTION_STATIC(HttpResponse_GetTable)
 {
-	LUA->ReferencePush(g_pPushedResponseData[Get_ResponseData(1, true)]->iTableReference); // This should never crash so no safety checks.
+	LUA->ReferencePush(g_pPushedHttpResponse[Get_HttpResponse(1, true)]->iTableReference); // This should never crash so no safety checks.
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(ResponseData_SetContent)
+LUA_FUNCTION_STATIC(HttpResponse_SetContent)
 {
-	ResponseData* pData = Get_ResponseData(1, true);
+	HttpResponse* pData = Get_HttpResponse(1, true);
 	pData->bSetContent = true;
 	pData->strContent = LUA->CheckString(2);
 	pData->strContentType = LUA->CheckString(3);
@@ -56,9 +56,9 @@ LUA_FUNCTION_STATIC(ResponseData_SetContent)
 	return 0;
 }
 
-LUA_FUNCTION_STATIC(ResponseData_SetRedirect)
+LUA_FUNCTION_STATIC(HttpResponse_SetRedirect)
 {
-	ResponseData* pData = Get_ResponseData(1, true);
+	HttpResponse* pData = Get_HttpResponse(1, true);
 	pData->bSetRedirect = true;
 	pData->strRedirect = LUA->CheckString(2);
 	pData->iRedirectCode = LUA->CheckNumber(3);
@@ -66,36 +66,36 @@ LUA_FUNCTION_STATIC(ResponseData_SetRedirect)
 	return 0;
 }
 
-LUA_FUNCTION_STATIC(ResponseData_SetHeader)
+LUA_FUNCTION_STATIC(HttpResponse_SetHeader)
 {
-	ResponseData* pData = Get_ResponseData(1, true);
+	HttpResponse* pData = Get_HttpResponse(1, true);
 	pData->bSetHeader = true;
 	pData->pHeaders[LUA->CheckString(2)] = LUA->CheckString(3);
 
 	return 0;
 }
 
-static int RequestData_TypeID = -1;
-PushReferenced_LuaClass(RequestData, RequestData_TypeID)
-Get_LuaClass(RequestData, RequestData_TypeID, "RequestData")
+static int HttpRequest_TypeID = -1;
+PushReferenced_LuaClass(HttpRequest, HttpRequest_TypeID)
+Get_LuaClass(HttpRequest, HttpRequest_TypeID, "HttpRequest")
 
-LUA_FUNCTION_STATIC(RequestData__tostring)
+LUA_FUNCTION_STATIC(HttpRequest__tostring)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 	if (!pData)
-		LUA->PushString("RequestData [NULL]");
+		LUA->PushString("HttpRequest [NULL]");
 	else
-		LUA->PushString("RequestData");
+		LUA->PushString("HttpRequest");
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData__index)
+LUA_FUNCTION_STATIC(HttpRequest__index)
 {
 	if (LUA->FindOnObjectsMetaTable(1, 2))
 		return 1;
 
 	LUA->Pop(1);
-	LUA->ReferencePush(g_pPushedRequestData[Get_RequestData(1, true)]->iTableReference);
+	LUA->ReferencePush(g_pPushedHttpRequest[Get_HttpRequest(1, true)]->iTableReference);
 	if (!LUA->FindObjectOnTable(-1, 2))
 		LUA->PushNil();
 
@@ -104,9 +104,9 @@ LUA_FUNCTION_STATIC(RequestData__index)
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData__newindex)
+LUA_FUNCTION_STATIC(HttpRequest__newindex)
 {
-	LUA->ReferencePush(g_pPushedRequestData[Get_RequestData(1, true)]->iTableReference);
+	LUA->ReferencePush(g_pPushedHttpRequest[Get_HttpRequest(1, true)]->iTableReference);
 	LUA->Push(2);
 	LUA->Push(3);
 	LUA->RawSet(-3);
@@ -115,140 +115,140 @@ LUA_FUNCTION_STATIC(RequestData__newindex)
 	return 0;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetTable)
+LUA_FUNCTION_STATIC(HttpRequest_GetTable)
 {
-	LUA->ReferencePush(g_pPushedRequestData[Get_RequestData(1, true)]->iTableReference); // This should never crash so no safety checks.
+	LUA->ReferencePush(g_pPushedHttpRequest[Get_HttpRequest(1, true)]->iTableReference); // This should never crash so no safety checks.
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_HasHeader)
+LUA_FUNCTION_STATIC(HttpRequest_HasHeader)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushBool(pData->pRequest.has_header(LUA->CheckString(2)));
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_HasParam)
+LUA_FUNCTION_STATIC(HttpRequest_HasParam)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushBool(pData->pRequest.has_param(LUA->CheckString(2)));
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetHeader)
+LUA_FUNCTION_STATIC(HttpRequest_GetHeader)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 	const char* header = LUA->CheckString(2);
 
 	LUA->PushString(pData->pRequest.get_header_value(header).c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetParam)
+LUA_FUNCTION_STATIC(HttpRequest_GetParam)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 	const char* param = LUA->CheckString(2);
 
 	LUA->PushString(pData->pRequest.get_param_value(param).c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetBody)
+LUA_FUNCTION_STATIC(HttpRequest_GetBody)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushString(pData->pRequest.body.c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetRemoteAddr)
+LUA_FUNCTION_STATIC(HttpRequest_GetRemoteAddr)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushString(pData->pRequest.remote_addr.c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetRemotePort)
+LUA_FUNCTION_STATIC(HttpRequest_GetRemotePort)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushNumber(pData->pRequest.remote_port);
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetLocalAddr)
+LUA_FUNCTION_STATIC(HttpRequest_GetLocalAddr)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushString(pData->pRequest.local_addr.c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetLocalPort)
+LUA_FUNCTION_STATIC(HttpRequest_GetLocalPort)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushNumber(pData->pRequest.local_port);
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetMethod)
+LUA_FUNCTION_STATIC(HttpRequest_GetMethod)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushString(pData->pRequest.method.c_str());
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetAuthorizationCount)
+LUA_FUNCTION_STATIC(HttpRequest_GetAuthorizationCount)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushNumber(pData->pRequest.authorization_count_);
 	return 1;
 }
 
-LUA_FUNCTION_STATIC(RequestData_GetContentLength)
+LUA_FUNCTION_STATIC(HttpRequest_GetContentLength)
 {
-	RequestData* pData = Get_RequestData(1, false);
+	HttpRequest* pData = Get_HttpRequest(1, false);
 
 	LUA->PushNumber(pData->pRequest.content_length_);
 	return 1;
 }
 
-void RequestData_LuaInit()
+void HttpRequest_LuaInit()
 {
-	ResponseData_TypeID = g_Lua->CreateMetaTable("ResponseData");
-		Util::AddFunc(ResponseData__tostring, "__tostring");
-		Util::AddFunc(ResponseData__index, "__index");
-		Util::AddFunc(ResponseData__newindex, "__newindex");
-		Util::AddFunc(ResponseData_GetTable, "GetTable");
+	HttpResponse_TypeID = g_Lua->CreateMetaTable("HttpResponse");
+		Util::AddFunc(HttpResponse__tostring, "__tostring");
+		Util::AddFunc(HttpResponse__index, "__index");
+		Util::AddFunc(HttpResponse__newindex, "__newindex");
+		Util::AddFunc(HttpResponse_GetTable, "GetTable");
 
-		Util::AddFunc(ResponseData_SetContent, "SetContent");
-		Util::AddFunc(ResponseData_SetHeader, "SetHeader");
-		Util::AddFunc(ResponseData_SetRedirect, "SetRedirect");
+		Util::AddFunc(HttpResponse_SetContent, "SetContent");
+		Util::AddFunc(HttpResponse_SetHeader, "SetHeader");
+		Util::AddFunc(HttpResponse_SetRedirect, "SetRedirect");
 	g_Lua->Pop(1);
 
-	RequestData_TypeID = g_Lua->CreateMetaTable("RequestData");
-		Util::AddFunc(RequestData__tostring, "__tostring");
-		Util::AddFunc(RequestData__index, "__index");
-		Util::AddFunc(RequestData__newindex, "__newindex");
-		Util::AddFunc(RequestData_GetTable, "GetTable");
+	HttpRequest_TypeID = g_Lua->CreateMetaTable("HttpRequest");
+		Util::AddFunc(HttpRequest__tostring, "__tostring");
+		Util::AddFunc(HttpRequest__index, "__index");
+		Util::AddFunc(HttpRequest__newindex, "__newindex");
+		Util::AddFunc(HttpRequest_GetTable, "GetTable");
 
-		Util::AddFunc(RequestData_HasHeader, "HasHeader");
-		Util::AddFunc(RequestData_HasParam, "HasParam");
-		Util::AddFunc(RequestData_GetHeader, "GetHeader");
-		Util::AddFunc(RequestData_GetParam, "GetParam");
-		Util::AddFunc(RequestData_GetBody, "GetBody");
-		Util::AddFunc(RequestData_GetRemoteAddr, "GetRemoteAddr");
-		Util::AddFunc(RequestData_GetRemotePort, "GetRemotePort");
-		Util::AddFunc(RequestData_GetLocalAddr, "GetLocalAddr");
-		Util::AddFunc(RequestData_GetLocalPort, "GetLocalPort");
-		Util::AddFunc(RequestData_GetMethod, "GetMethod");
-		Util::AddFunc(RequestData_GetAuthorizationCount, "GetAuthorizationCount");
-		Util::AddFunc(RequestData_GetContentLength, "GetContentLength");
+		Util::AddFunc(HttpRequest_HasHeader, "HasHeader");
+		Util::AddFunc(HttpRequest_HasParam, "HasParam");
+		Util::AddFunc(HttpRequest_GetHeader, "GetHeader");
+		Util::AddFunc(HttpRequest_GetParam, "GetParam");
+		Util::AddFunc(HttpRequest_GetBody, "GetBody");
+		Util::AddFunc(HttpRequest_GetRemoteAddr, "GetRemoteAddr");
+		Util::AddFunc(HttpRequest_GetRemotePort, "GetRemotePort");
+		Util::AddFunc(HttpRequest_GetLocalAddr, "GetLocalAddr");
+		Util::AddFunc(HttpRequest_GetLocalPort, "GetLocalPort");
+		Util::AddFunc(HttpRequest_GetMethod, "GetMethod");
+		Util::AddFunc(HttpRequest_GetAuthorizationCount, "GetAuthorizationCount");
+		Util::AddFunc(HttpRequest_GetContentLength, "GetContentLength");
 	g_Lua->Pop(1);
 }

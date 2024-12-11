@@ -164,28 +164,28 @@ LUA_FUNCTION_STATIC(HttpServer_SetTCPnodelay)
 LUA_FUNCTION_STATIC(HttpServer_SetReadTimeout)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
-	pServer->GetServer().set_read_timeout(LUA->CheckNumber(2), LUA->CheckNumber(3));
+	pServer->GetServer().set_read_timeout((time_t)LUA->CheckNumber(2), (time_t)LUA->CheckNumber(3));
 	return 0;
 }
 
 LUA_FUNCTION_STATIC(HttpServer_SetWriteTimeout)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
-	pServer->GetServer().set_write_timeout(LUA->CheckNumber(1), LUA->CheckNumber(2));
+	pServer->GetServer().set_write_timeout((time_t)LUA->CheckNumber(1), (time_t)LUA->CheckNumber(2));
 	return 0;
 }
 
 LUA_FUNCTION_STATIC(HttpServer_SetPayloadMaxLength)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
-	pServer->GetServer().set_payload_max_length(LUA->CheckNumber(2));
+	pServer->GetServer().set_payload_max_length((size_t)LUA->CheckNumber(2));
 	return 0;
 }
 
 LUA_FUNCTION_STATIC(HttpServer_SetKeepAliveTimeout)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
-	pServer->GetServer().set_keep_alive_timeout(LUA->CheckNumber(2));
+	pServer->GetServer().set_keep_alive_timeout((time_t)LUA->CheckNumber(2));
 
 	return 0;
 }
@@ -193,7 +193,7 @@ LUA_FUNCTION_STATIC(HttpServer_SetKeepAliveTimeout)
 LUA_FUNCTION_STATIC(HttpServer_SetKeepAliveMaxCount)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
-	pServer->GetServer().set_keep_alive_max_count(LUA->CheckNumber(2));
+	pServer->GetServer().set_keep_alive_max_count((size_t)LUA->CheckNumber(2));
 
 	return 0;
 }
@@ -218,7 +218,7 @@ LUA_FUNCTION_STATIC(HttpServer_Start)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
 	const char* address = LUA->CheckString(2);
-	unsigned port = LUA->CheckNumber(3);
+	unsigned int port = (unsigned int)LUA->CheckNumber(3);
 
 	pServer->Start(address, port);
 
@@ -254,7 +254,7 @@ LUA_FUNCTION_STATIC(httpserver_Destroy)
 
 void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 {
-	RequestData_LuaInit();
+	HttpRequest_LuaInit();
 
 	HttpServer_TypeID = g_Lua->CreateMetaTable("HttpServer");
 		Util::AddFunc(HttpServer__tostring, "__tostring");

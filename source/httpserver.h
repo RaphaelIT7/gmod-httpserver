@@ -2,7 +2,7 @@
 #include "unordered_map"
 #include "httplib.h"
 
-struct ResponseData {
+struct HttpResponse {
 	bool bSetContent = false;
 	bool bSetRedirect = false;
 	bool bSetHeader = false;
@@ -13,12 +13,12 @@ struct ResponseData {
 	std::unordered_map<std::string, std::string> pHeaders;
 };
 
-struct RequestData {
+struct HttpRequest {
 	bool bHandled = false;
 	bool bDelete = false;
 	int iFunction;
 	std::string strPath;
-	ResponseData* pResponseData;
+	HttpResponse pResponseData;
 	httplib::Response pResponse;
 	httplib::Request pRequest;
 };
@@ -92,6 +92,6 @@ private:
 	bool m_bUpdate = false;
 	bool m_bInUpdate = false;
 	std::string m_strAddress;
-	std::vector<RequestData*> m_pRequests;
+	std::vector<HttpRequest*> m_pRequests;
 	httplib::Server m_pServer;
 };

@@ -4,17 +4,17 @@
 #include "baseclient.h"
 #include "inetchannel.h"
 
-void CallFunc(int func, RequestData* request, ResponseData* response)
+void CallFunc(int func, HttpRequest* request, HttpResponse* response)
 {
 	g_Lua->ReferencePush(func);
 
-	Push_RequestData(request);
-	Push_ResponseData(response);
+	Push_HttpRequest(request);
+	Push_HttpResponse(response);
 
 	g_Lua->PCall(2, 0, 0);
 
-	Delete_RequestData(request);
-	Delete_ResponseData(response); // Destroys the Lua reference after we used it
+	Delete_HttpRequest(request);
+	Delete_HttpResponse(response); // Destroys the Lua reference after we used it
 }
 
 void HttpServer::Start(const char* address, unsigned port)
@@ -52,7 +52,7 @@ void HttpServer::Think()
 			continue;
 		}
 
-		CallFunc(pEntry->iFunction, pEntry, pEntry->pResponseData);
+		CallFunc(pEntry->iFunction, pEntry, &pEntry->pResponseData);
 		pEntry->bHandled = true;
 	}
 
@@ -82,18 +82,17 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 			if (!found) { return; }
 		}
 
-		RequestData* request = new RequestData;
+		HttpRequest* request = new HttpRequest;
 		request->strPath = path;
 		request->pRequest = req;
 		request->iFunction = func;
 		request->pResponse = res;
-		request->pResponseData = new ResponseData;
 		m_pRequests.push_back(request); // We should add a check here since we could write to it from multiple threads?
 		m_bUpdate = true;
 		while (!request->bHandled) {
 			ThreadSleep(1);
 		}
-		ResponseData* rdata = request->pResponseData;
+		HttpResponse* rdata = &request->pResponseData;
 		if (rdata->bSetContent) {
 			res.set_content(rdata->strContent, rdata->strContentType);
 		}

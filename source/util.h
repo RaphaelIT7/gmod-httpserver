@@ -166,10 +166,10 @@ void Delete_##className(className* var) \
         (vec).erase(_it); \
 }
 
-extern void RequestData_LuaInit();
+extern void HttpRequest_LuaInit();
 
-extern void Push_RequestData(RequestData* pData);
-extern void Delete_RequestData(RequestData* pData);
+extern void Push_HttpRequest(HttpRequest* pData);
+extern void Delete_HttpRequest(HttpRequest* pData);
 
-extern void Push_ResponseData(ResponseData* pData);
-extern void Delete_ResponseData(ResponseData* pData);
+extern void Push_HttpResponse(HttpResponse* pData);
+extern void Delete_HttpResponse(HttpResponse* pData);
