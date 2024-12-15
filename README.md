@@ -64,20 +64,24 @@ Returns true if the HTTPServer is running.
 #### HttpServer:SetTCPnodelay(bool nodelay)
 Sets whether a delay should be added to tcp or not.
 
-#### HttpServer:SetReadTimeout(int sec, int usec)
+#### HttpServer:SetReadTimeout(number sec, number usec)
 Sets the maximum amount of time before a read times out.
 
-#### HttpServer:SetWriteTimeout(int sec, int usec)
+#### HttpServer:SetWriteTimeout(number sec, number usec)
 Sets the maximum amount of time before a write times out.
 
-#### HttpServer:SetPayloadMaxLength(int maxlength)
+#### HttpServer:SetPayloadMaxLength(number maxlength)
 Sets the maximum payload length.
 
-#### HttpServer:SetKeepAliveTimeout(int sec)
+#### HttpServer:SetKeepAliveTimeout(number sec)
 Sets the maximum time a connection is kept alive.
 
-#### HttpServer:SetKeepAliveMaxCount(int amount)
+#### HttpServer:SetKeepAliveMaxCount(number amount)
 Sets the maximum amount of connections that can be kept alive at the same time.
+
+#### HttpServer:SetThreadSleep(number sleepTime)
+The number of ms threads sleep before checking again if a request was handled.  
+Useful to raise it when you let requests wait for a while.
 
 #### HttpServer:SetMountPoint(string path, string folder)
 This mounts the given folder to the given path.

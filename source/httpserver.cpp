@@ -11,7 +11,11 @@ void CallFunc(int func, HttpRequest* request, HttpResponse* response)
 	Push_HttpRequest(request);
 	Push_HttpResponse(response);
 
-	g_Lua->PCall(2, 0, 0);
+	if (g_Lua->CallFunctionProtected(2, 1, true))
+	{
+		request->bHandled = !g_Lua->GetBool(-1);
+		g_Lua->Pop(1);
+	}
 
 	Delete_HttpRequest(request);
 	Delete_HttpResponse(response); // Destroys the Lua reference after we used it
@@ -43,27 +47,32 @@ void HttpServer::Think()
 		return;
 
 	m_bInUpdate = true;
-	for (auto it = m_pRequests.begin(); it != m_pRequests.end(); ++it) {
+	for (auto it = m_pRequests.begin(); it != m_pRequests.end(); ++it)
+	{
 		auto pEntry = (*it);
-		if (pEntry->bHandled) { continue; }
-		if (pEntry->bDelete) {
+		if (pEntry->bDelete)
+		{
 			it = m_pRequests.erase(it);
 			delete pEntry;
 			continue;
 		}
 
-		CallFunc(pEntry->iFunction, pEntry, &pEntry->pResponseData);
-		pEntry->bHandled = true;
+		if (!pEntry->bHandled)
+			CallFunc(pEntry->iFunction, pEntry, &pEntry->pResponseData);
 	}
 
 	m_bUpdate = false;
 	m_bInUpdate = false;
 }
 
-httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipwhitelist)
+static std::string localAddr = "127.0.0.1";
+static std::string loopBack = "loopback";
+httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, bool ipWhitelist)
 {
-	return [=](const httplib::Request& req, httplib::Response& res) {
-		if (ipwhitelist) {
+	return [=](const httplib::Request& req, httplib::Response& res)
+	{
+		if (ipWhitelist)
+		{
 			bool found = false;
 			for (auto& pClient : Util::GetClients())
 			{
@@ -73,13 +82,15 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 				const netadr_s& addr = pClient->GetNetChannel()->GetRemoteAddress();
 				std::string address = addr.ToString();
 				size_t port_pos = address.find(":");
-				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == "127.0.0.1" && address.substr(0, port_pos) == "loopback")) {
+				if (address.substr(0, port_pos) == req.remote_addr || (req.remote_addr == localAddr && address.substr(0, port_pos) == loopBack))
+				{
 					found = true;
 					break;
 				}
 			}
 
-			if (!found) { return; }
+			if (!found)
+				return;
 		}
 
 		HttpRequest* request = new HttpRequest;
@@ -89,23 +100,19 @@ httplib::Server::Handler HttpServer::CreateHandler(const char* path, int func, b
 		request->pResponse = res;
 		m_pRequests.push_back(request); // We should add a check here since we could write to it from multiple threads?
 		m_bUpdate = true;
-		while (!request->bHandled) {
-			ThreadSleep(1);
-		}
+		while (!request->bHandled)
+			ThreadSleep(m_iThreadSleep);
+
 		HttpResponse* rdata = &request->pResponseData;
-		if (rdata->bSetContent) {
+		if (rdata->bSetContent)
 			res.set_content(rdata->strContent, rdata->strContentType);
-		}
 
-		if (rdata->bSetRedirect) {
+		if (rdata->bSetRedirect)
 			res.set_redirect(rdata->strRedirect, rdata->iRedirectCode);
-		}
 
-		if (rdata->bSetHeader) {
-			for (auto& [key, value] : rdata->pHeaders) {
+		if (rdata->bSetHeader)
+			for (auto& [key, value] : rdata->pHeaders)
 				res.set_header(key, value);
-			}
-		}
 
 		request->bDelete = true;
 	};

@@ -165,6 +165,7 @@ LUA_FUNCTION_STATIC(HttpServer_SetReadTimeout)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
 	pServer->GetServer().set_read_timeout((time_t)LUA->CheckNumber(2), (time_t)LUA->CheckNumber(3));
+
 	return 0;
 }
 
@@ -172,6 +173,7 @@ LUA_FUNCTION_STATIC(HttpServer_SetWriteTimeout)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
 	pServer->GetServer().set_write_timeout((time_t)LUA->CheckNumber(1), (time_t)LUA->CheckNumber(2));
+
 	return 0;
 }
 
@@ -179,6 +181,7 @@ LUA_FUNCTION_STATIC(HttpServer_SetPayloadMaxLength)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
 	pServer->GetServer().set_payload_max_length((size_t)LUA->CheckNumber(2));
+
 	return 0;
 }
 
@@ -233,18 +236,18 @@ LUA_FUNCTION_STATIC(HttpServer_Stop)
 	return 0;
 }
 
+LUA_FUNCTION_STATIC(HttpServer_SetThreadSleep)
+{
+	HttpServer* pServer = Get_HttpServer(1, true);
+	pServer->SetThreadSleep((unsigned int)LUA->CheckNumber(2));
+
+	return 0;
+}
+
 LUA_FUNCTION_STATIC(httpserver_Create)
 {
 	Push_HttpServer(new HttpServer);
 	return 1;
-}
-
-LUA_FUNCTION_STATIC(httpserver_Think)
-{
-	for (auto& [httpserver, _] : g_pPushedHttpServer)
-		httpserver->Think();
-
-	return 0;
 }
 
 LUA_FUNCTION_STATIC(httpserver_Destroy)
@@ -256,6 +259,14 @@ LUA_FUNCTION_STATIC(httpserver_Destroy)
 
 	Delete_HttpServer(pServer);
 	delete pServer;
+
+	return 0;
+}
+
+LUA_FUNCTION_STATIC(httpserver_Think)
+{
+	for (auto& [httpserver, _] : g_pPushedHttpServer)
+		httpserver->Think();
 
 	return 0;
 }
@@ -281,6 +292,7 @@ void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 		Util::AddFunc(HttpServer_SetPayloadMaxLength, "SetPayloadMaxLength");
 		Util::AddFunc(HttpServer_SetKeepAliveTimeout, "SetKeepAliveTimeout");
 		Util::AddFunc(HttpServer_SetKeepAliveMaxCount, "SetKeepAliveMaxCount");
+		Util::AddFunc(HttpServer_SetThreadSleep, "SetThreadSleep");
 
 		Util::AddFunc(HttpServer_SetMountPoint, "SetMountPoint");
 		Util::AddFunc(HttpServer_RemoveMountPoint, "RemoveMountPoint");
