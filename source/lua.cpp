@@ -239,6 +239,14 @@ LUA_FUNCTION_STATIC(httpserver_Create)
 	return 1;
 }
 
+LUA_FUNCTION_STATIC(httpserver_Think)
+{
+	for (auto& [httpserver, _] : g_pPushedHttpServer)
+		httpserver->Think();
+
+	return 0;
+}
+
 LUA_FUNCTION_STATIC(httpserver_Destroy)
 {
 	HttpServer* pServer = Get_HttpServer(1, true);
@@ -288,6 +296,7 @@ void LUA_InitServer(GarrysMod::Lua::ILuaBase* LUA)
 	Util::StartTable();
 		Util::AddFunc(httpserver_Create, "Create");
 		Util::AddFunc(httpserver_Destroy, "Destroy");
+		Util::AddFunc(httpserver_Think, "Think");
 	Util::FinishTable("httpserver");
 
 	LUA->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);

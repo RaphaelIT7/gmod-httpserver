@@ -13,13 +13,17 @@ TODO:
 
 ## Main Functions
 
-#### HttpServer HttpServer:Create()
+#### HttpServer httpserver.Create()
 Creates a new HTTPServer.  
 
-#### HttpServer:Destroy(HttpServer server)
+#### httpserver.Destroy(HttpServer server)
 Destroys the given http server.  
 
-## Basic Functions
+#### (internal function) httpserver.Think()
+Runs `HttpServer:Think()` on all existing http servers.  
+Called by the `Think`(`HTTPServer`) hook we add.  
+
+## Class Functions
 
 #### HttpServer:Start(String IP, Number Port)
 This will start or restart the HTTP Server, and it will listen on the given address + port.  
